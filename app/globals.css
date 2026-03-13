@@ -175,6 +175,31 @@ select:focus-visible {
   gap: 32px;
 }
 
+.app-sidebar {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.app-sidebar__brand .brand-mark {
+  height: 48px;
+  width: 48px;
+  border-radius: 16px;
+}
+
+.app-sidebar__nav {
+  gap: 12px;
+}
+
+.app-sidebar__nav-link {
+  min-height: 50px;
+}
+
+.app-sidebar__account .glass-button {
+  width: 100%;
+  justify-content: center;
+}
+
 .dashboard-header-grid {
   display: grid;
   gap: 20px;
@@ -897,6 +922,12 @@ textarea::placeholder {
   .dashboard-shell {
     grid-template-columns: 228px minmax(0, 1fr);
     align-items: start;
+  }
+
+  .app-sidebar {
+    max-height: calc(100vh - 136px);
+    overflow-y: auto;
+    padding-right: 4px;
   }
 
   .dashboard-header-grid {

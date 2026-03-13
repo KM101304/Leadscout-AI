@@ -31,16 +31,17 @@ export async function AppShell({
   return (
     <main className="shell app-shell pb-[calc(100px+env(safe-area-inset-bottom,0px))] xl:pb-10">
       <div className="dashboard-shell">
-        <aside className="panel content-stack hidden rounded-[28px] p-6 xl:sticky xl:top-[112px] xl:grid xl:self-start">
-          <div className="rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
-            <BrandMark compact />
+        <aside className="app-sidebar panel hidden rounded-[28px] p-5 xl:sticky xl:top-[112px] xl:grid xl:self-start">
+          <div className="app-sidebar__brand rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
+            <BrandMark />
           </div>
           <PlanStatus
             tier={viewer.subscription.tier}
             leadsUsed={viewer.subscription.leadsUsedThisMonth}
             leadsLimit={viewer.subscription.leadsLimit}
+            compact
           />
-          <nav className="flex gap-3 overflow-x-auto pb-1 xl:grid xl:overflow-visible xl:pb-0">
+          <nav className="app-sidebar__nav flex gap-3 overflow-x-auto pb-1 xl:grid xl:overflow-visible xl:pb-0">
             {navItems.map((item) => {
               const Icon = item.icon;
               const key =
@@ -52,7 +53,7 @@ export async function AppShell({
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`glass-button flex shrink-0 items-center gap-3 rounded-[18px] border px-4 py-3 text-sm xl:shrink ${
+                  className={`app-sidebar__nav-link glass-button flex shrink-0 items-center gap-3 rounded-[18px] border px-4 py-3 text-sm xl:shrink ${
                     activeNav === key
                       ? "border-cyan-400/20 bg-cyan-400/12 text-white shadow-lg shadow-cyan-950/20"
                       : "border-white/6 bg-white/[0.02] text-slate-300 hover:border-white/10 hover:bg-white/[0.04] hover:text-white"
@@ -64,7 +65,7 @@ export async function AppShell({
               );
             })}
           </nav>
-          <div className="rounded-[20px] border border-white/8 bg-white/[0.03] section-subtle">
+          <div className="app-sidebar__account rounded-[20px] border border-white/8 bg-white/[0.03] section-subtle">
             <p className="meta-text text-slate-400">Signed in as</p>
             <p className="mt-2 truncate text-sm font-medium text-white">{viewer.user?.email ?? "Unknown user"}</p>
             <LogoutButton className="glass-button mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10" />
