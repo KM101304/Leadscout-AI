@@ -9,7 +9,8 @@ export const env = {
   stripeSecretKey: process.env.STRIPE_SECRET_KEY?.trim() || "",
   stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() || "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET?.trim() || "",
-  enableLiveScan: process.env.ENABLE_LIVE_SCAN?.trim() === "true"
+  enableLiveScan: process.env.ENABLE_LIVE_SCAN?.trim() === "true",
+  enableDemoMode: process.env.ENABLE_DEMO_MODE?.trim() === "true"
 };
 
 export function hasConfiguredIntegration(name: keyof typeof env) {

@@ -1,15 +1,25 @@
 import { scoreLead } from "@/lib/leadScoring";
 import { generatePitch } from "@/lib/pitchGenerator";
-import { scanWebsite } from "@/lib/websiteScanner";
-import { Lead, SearchInput, SearchResult } from "@/lib/types";
+import { ScanConfigurationError, ScanExecutionError, ScanQueryError } from "@/lib/scanErrors";
+import { ScanQuery, ScanSession, SearchInput, Lead } from "@/lib/types";
 import { searchBusinessDirectory } from "@/services/directoryService";
 import { slugify } from "@/lib/utils";
+import { scanWebsite } from "@/lib/websiteScanner";
 
-export async function runLeadScan(input: SearchInput): Promise<SearchResult> {
-  const businesses = await searchBusinessDirectory(input);
+export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
+  const query = normalizeScanQuery(input);
+  const directoryResult = await searchBusinessDirectory(query);
+
+  if (directoryResult.mode === "live" && directoryResult.businesses.length === 0) {
+    throw new ScanExecutionError(`No businesses were found for ${query.niche} in ${query.location}.`);
+  }
+
+  if (directoryResult.mode === "demo" && directoryResult.businesses.length === 0) {
+    throw new ScanExecutionError("Demo mode is enabled, but no demo businesses are available for this scan.");
+  }
 
   const leads: Lead[] = await Promise.all(
-    businesses.map(async (business) => {
+    directoryResult.businesses.map(async (business) => {
       const signals = await scanWebsite({
         url: business.website,
         fallbackSignals: business.signals
@@ -54,16 +64,24 @@ export async function runLeadScan(input: SearchInput): Promise<SearchResult> {
   const sortedLeads = leads.sort((a, b) => b.leadScore - a.leadScore);
   const highPriority = sortedLeads.filter((lead) => lead.leadScore >= 60).length;
   const averageScore = sortedLeads.reduce((sum, lead) => sum + lead.leadScore, 0) / Math.max(sortedLeads.length, 1);
+  const topIssueLabels = getTopIssueLabels(sortedLeads);
+  const recommendation = sortedLeads[0]?.pitch.serviceSuggestion ?? `Start with a ${query.niche} growth systems review.`;
+  const generatedPitch =
+    sortedLeads[0]?.pitch.emailPitch ??
+    `We scanned ${query.niche} in ${query.location} and surfaced businesses with visible digital gaps worth exploring.`;
 
   return {
-    searchId: `${slugify(input.location)}-${slugify(input.niche)}`,
-    location: input.location,
-    niche: input.niche,
+    searchId: `${slugify(query.location)}-${slugify(query.niche)}`,
+    mode: directoryResult.mode,
+    query,
     leads: sortedLeads,
     summary: {
       scanned: sortedLeads.length,
       highPriority,
-      averageScore: Number(averageScore.toFixed(1))
+      averageScore: Number(averageScore.toFixed(1)),
+      topIssueLabels,
+      recommendation,
+      generatedPitch
     }
   };
 }
@@ -98,6 +116,54 @@ export function leadsToCsv(leads: Lead[]) {
         .join(",")
     )
     .join("\n");
+}
+
+function normalizeScanQuery(input: SearchInput): ScanQuery {
+  const location = input.location?.trim();
+  const niche = input.niche?.trim();
+
+  if (!location || !niche) {
+    throw new ScanQueryError("Both location and niche are required to run a scan.");
+  }
+
+  const radius = Number.isFinite(input.radius) ? Number(input.radius) : 25;
+  const minimumReviewCount = Number.isFinite(input.minimumReviewCount) ? Number(input.minimumReviewCount) : 0;
+  const websiteStatus = input.websiteStatus ?? "any";
+  const businessSize = input.businessSize ?? "any";
+
+  const params = new URLSearchParams({
+    location,
+    niche,
+    radius: String(radius),
+    minimumReviewCount: String(minimumReviewCount),
+    websiteStatus,
+    businessSize
+  });
+
+  return {
+    location,
+    niche,
+    radius,
+    minimumReviewCount,
+    websiteStatus,
+    businessSize,
+    queryString: params.toString()
+  };
+}
+
+function getTopIssueLabels(leads: Lead[]) {
+  const counts = new Map<string, number>();
+
+  leads.forEach((lead) => {
+    lead.issueLabels.forEach((issue) => {
+      counts.set(issue, (counts.get(issue) ?? 0) + 1);
+    });
+  });
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([issue]) => issue);
 }
 
 function buildOpportunityInsight(input: {

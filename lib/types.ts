@@ -96,14 +96,23 @@ export interface SearchInput {
   businessSize?: "any" | "solo" | "small-team" | "multi-location";
 }
 
-export interface SearchResult {
+export interface ScanQuery extends Required<SearchInput> {
+  queryString: string;
+}
+
+export interface ScanSummary {
+  scanned: number;
+  highPriority: number;
+  averageScore: number;
+  topIssueLabels: string[];
+  recommendation: string;
+  generatedPitch: string;
+}
+
+export interface ScanSession {
   searchId: string;
-  location: string;
-  niche: string;
+  mode: "live" | "demo";
+  query: ScanQuery;
   leads: Lead[];
-  summary: {
-    scanned: number;
-    highPriority: number;
-    averageScore: number;
-  };
+  summary: ScanSummary;
 }

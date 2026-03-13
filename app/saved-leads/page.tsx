@@ -1,40 +1,21 @@
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
-import { LeadCard } from "@/components/LeadCard";
-import { Badge } from "@/components/ui";
-import { runLeadScan } from "@/services/scanningService";
 
 export default async function SavedLeadsPage() {
-  const result = await runLeadScan({
-    location: "Toronto",
-    niche: "chiropractors",
-    minimumReviewCount: 10
-  });
-
-  const saved = result.leads.slice(0, 4);
-
   return (
-    <AppShell
-      title="Saved leads"
-      subtitle="Keep promising opportunities close."
-      activeNav="saved-leads"
-    >
-      {saved.length > 0 ? (
-        <div className="grid gap-8">
-          <div className="flex flex-wrap gap-3">
-            <Badge>{saved.length} saved</Badge>
-            <Badge tone="success">{saved.filter((lead) => lead.leadScore >= 80).length} high opportunity</Badge>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-2">
-            {saved.map((lead) => (
-              <LeadCard key={lead.id} lead={lead} />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="surface-primary rounded-[24px] px-6 py-16 text-center text-slate-400">
-          No saved leads yet. Start a search to discover opportunities worth tracking.
-        </div>
-      )}
+    <AppShell title="Saved leads" subtitle="Keep promising opportunities close." activeNav="saved-leads">
+      <div className="surface-primary rounded-[24px] px-6 py-16 text-center text-slate-400">
+        <p className="text-base text-white">No saved leads yet.</p>
+        <p className="mt-3 text-sm leading-6 text-slate-400">
+          Run a scan from the dashboard and save the leads you want to revisit later.
+        </p>
+        <Link
+          href="/dashboard"
+          className="glass-button mt-6 inline-flex h-[46px] items-center justify-center rounded-full border border-white/8 px-5 text-sm font-semibold text-white"
+        >
+          Start a scan
+        </Link>
+      </div>
     </AppShell>
   );
 }

@@ -1,15 +1,40 @@
 import { env } from "@/lib/env";
 import { generateMockBusinesses, makeMockSignals } from "@/lib/mockData";
-import { DirectoryBusiness, SearchInput } from "@/lib/types";
+import { ScanConfigurationError } from "@/lib/scanErrors";
+import { DirectoryBusiness, ScanQuery } from "@/lib/types";
 import { slugify } from "@/lib/utils";
 
-export async function searchBusinessDirectory(input: SearchInput): Promise<DirectoryBusiness[]> {
-  const liveMatches = await searchGooglePlaces(input);
-  const matches = liveMatches.length > 0 ? liveMatches : generateMockBusinesses(input.location, input.niche);
+export async function searchBusinessDirectory(query: ScanQuery): Promise<{
+  businesses: DirectoryBusiness[];
+  mode: "live" | "demo";
+}> {
+  const liveMatches = await searchGooglePlaces(query);
 
+  if (liveMatches.length > 0) {
+    return {
+      businesses: applyDirectoryFilters(liveMatches, query),
+      mode: "live"
+    };
+  }
+
+  if (env.enableDemoMode) {
+    return {
+      businesses: applyDirectoryFilters(generateMockBusinesses(query.location, query.niche), query),
+      mode: "demo"
+    };
+  }
+
+  if (!env.googlePlacesApiKey) {
+    throw new ScanConfigurationError("Live scanning is not configured. Add GOOGLE_PLACES_API_KEY or explicitly enable demo mode.");
+  }
+
+  throw new ScanConfigurationError(`No live search results were returned for ${query.niche} in ${query.location}.`);
+}
+
+function applyDirectoryFilters(matches: DirectoryBusiness[], input: ScanQuery) {
   return matches.filter((business) => {
-    if (typeof input.minimumReviewCount === "number") {
-      if (business.reviewCount < input.minimumReviewCount) return false;
+    if (typeof input.minimumReviewCount === "number" && business.reviewCount < input.minimumReviewCount) {
+      return false;
     }
 
     if (input.websiteStatus === "has-website" && business.website === "No website") return false;
@@ -23,7 +48,7 @@ export async function searchBusinessDirectory(input: SearchInput): Promise<Direc
   });
 }
 
-async function searchGooglePlaces(input: SearchInput): Promise<DirectoryBusiness[]> {
+async function searchGooglePlaces(input: ScanQuery): Promise<DirectoryBusiness[]> {
   if (!env.googlePlacesApiKey) {
     return [];
   }
@@ -38,7 +63,7 @@ async function searchGooglePlaces(input: SearchInput): Promise<DirectoryBusiness
           "places.id,places.displayName,places.formattedAddress,places.websiteUri,places.nationalPhoneNumber,places.rating,places.userRatingCount,places.location"
       },
       body: JSON.stringify({
-        textQuery: `${input.location} ${input.niche}`,
+        textQuery: `${input.niche} in ${input.location}`,
         pageSize: 12
       }),
       cache: "no-store"
@@ -75,7 +100,7 @@ async function searchGooglePlaces(input: SearchInput): Promise<DirectoryBusiness
         businessName,
         phone: place.nationalPhoneNumber || "Phone unavailable",
         website,
-        address: place.formattedAddress || `${input.location}`,
+        address: place.formattedAddress || input.location,
         coordinates: {
           latitude: place.location?.latitude ?? 0,
           longitude: place.location?.longitude ?? 0
