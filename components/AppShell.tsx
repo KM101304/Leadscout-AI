@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import { PlanStatus } from "@/components/PlanStatus";
 import { getViewer } from "@/lib/auth";
 import { LogoutButton } from "@/components/LogoutButton";
-import { BrandMark } from "@/components/BrandMark";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -32,9 +31,6 @@ export async function AppShell({
     <main className="shell app-shell pb-[calc(100px+env(safe-area-inset-bottom,0px))] xl:pb-10">
       <div className="dashboard-shell">
         <aside className="app-sidebar panel hidden rounded-[28px] p-5 xl:sticky xl:top-[112px] xl:grid xl:self-start">
-          <div className="app-sidebar__brand rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
-            <BrandMark compact />
-          </div>
           <PlanStatus
             tier={viewer.subscription.tier}
             leadsUsed={viewer.subscription.leadsUsedThisMonth}

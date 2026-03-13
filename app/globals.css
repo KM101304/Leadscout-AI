@@ -177,20 +177,8 @@ select:focus-visible {
 
 .app-sidebar {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   align-content: start;
-}
-
-.app-sidebar__brand {
-  min-height: 86px;
-  display: flex;
-  align-items: center;
-}
-
-.app-sidebar__brand .brand-mark {
-  height: 44px;
-  width: 44px;
-  border-radius: 15px;
 }
 
 .app-sidebar__nav {
