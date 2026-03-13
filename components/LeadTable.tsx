@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { ExportButton } from "@/components/ExportButton";
 import { LeadDetails } from "@/components/LeadDetails";
 import { LeadMap } from "@/components/LeadMap";
@@ -13,6 +13,8 @@ type ViewMode = "table" | "map";
 
 export function LeadTable({ leads }: { leads: Lead[] }) {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [focusedLeadId, setFocusedLeadId] = useState<string | null>(leads[0]?.id ?? null);
+  const [expandedLeadId, setExpandedLeadId] = useState<string | null>(leads[0]?.id ?? null);
   const [sortKey, setSortKey] = useState<SortKey>("leadScore");
   const [filter, setFilter] = useState("all");
   const [query, setQuery] = useState("");
@@ -38,6 +40,7 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
   const selectedLeads = filteredLeads.filter((lead) => selectedIds.includes(lead.id));
   const highOpportunityCount = filteredLeads.filter((lead) => lead.leadScore >= 80).length;
   const weakSeoCount = filteredLeads.filter((lead) => lead.issueTags.includes("weak-seo")).length;
+  const focusedLead = filteredLeads.find((lead) => lead.id === focusedLeadId) ?? filteredLeads[0] ?? null;
 
   const toggleLead = (id: string) => {
     setSelectedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
@@ -119,6 +122,8 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
         {viewMode === "map" ? (
           <LeadMap
             leads={filteredLeads}
+            activeLeadId={focusedLead?.id}
+            onSelectLead={(lead) => setFocusedLeadId(lead.id)}
             onViewLead={(lead) => setSelectedLead(lead)}
           />
         ) : (
@@ -173,93 +178,145 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
             </div>
 
             <div className="results-table-shell mt-8 hidden md:block">
-              <div className="overflow-x-auto">
-                <table className="results-table min-w-[1580px] text-left text-sm">
-                  <colgroup>
-                    <col style={{ width: "44px" }} />
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "24%" }} />
-                    <col style={{ width: "8%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "16%" }} />
-                    <col style={{ width: "148px" }} />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th />
-                      <th>Business</th>
-                      <th>Contact and address</th>
-                      <th>Lead score</th>
-                      <th>Issue tags</th>
-                      <th>Opportunity and recommendation</th>
-                      <th>Pitch preview</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLeads.map((lead) => (
-                      <tr key={lead.id}>
-                        <td>
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.includes(lead.id)}
-                            onChange={() => toggleLead(lead.id)}
-                            className="h-4 w-4 rounded border-white/15 bg-slate-950"
-                          />
-                        </td>
-                        <td>
-                          <div className="grid gap-1.5">
-                            <p className="card-title text-[15px] text-white">{lead.businessName}</p>
-                            <p className="text-[12px] text-slate-500">
-                              {lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews
-                            </p>
-                            <p className="text-[12px] uppercase tracking-[0.12em] text-cyan-300/75">{lead.niche}</p>
+              <div className="results-table">
+                <div className="results-table__head">
+                  <div />
+                  <div>Business</div>
+                  <div>Contact</div>
+                  <div>Score and issues</div>
+                  <div>Next best move</div>
+                  <div>Actions</div>
+                </div>
+
+                <div className="results-table__body">
+                  {filteredLeads.map((lead) => {
+                    const isExpanded = expandedLeadId === lead.id;
+
+                    return (
+                      <article key={lead.id} className={`results-row ${focusedLeadId === lead.id ? "is-focused" : ""}`}>
+                        <div className="results-row__summary">
+                          <div className="results-row__cell">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.includes(lead.id)}
+                              onChange={() => toggleLead(lead.id)}
+                              className="h-4 w-4 rounded border-white/15 bg-slate-950"
+                              aria-label={`Select ${lead.businessName}`}
+                            />
                           </div>
-                        </td>
-                        <td>
-                          <div className="grid gap-2 text-slate-300">
-                            <p className="text-slate-200">{lead.phone}</p>
-                            <p className="break-words text-slate-400">{lead.website}</p>
-                            <p className="text-slate-400">{lead.address}</p>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="grid gap-2">
-                            <ScorePill score={lead.leadScore} />
-                            <p className="text-[12px] text-slate-500">{lead.location}</p>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="flex flex-wrap gap-2">
-                            {lead.issueLabels.map((issue) => (
-                              <IssueBadge key={issue} issue={issue} />
-                            ))}
-                          </div>
-                        </td>
-                        <td>
-                          <div className="grid gap-2">
-                            <p className="font-medium text-white">{lead.opportunityType}</p>
-                            <p className="text-slate-300">{lead.pitch.serviceSuggestion}</p>
-                            <p className="text-[13px] leading-6 text-slate-400">{lead.opportunityInsight}</p>
-                          </div>
-                        </td>
-                        <td>
-                          <p className="text-[13px] leading-6 text-slate-300">{lead.pitch.emailPitch}</p>
-                        </td>
-                        <td>
+
                           <button
                             type="button"
-                            onClick={() => setSelectedLead(lead)}
-                            className="glass-button whitespace-nowrap rounded-full border border-white/8 px-4 py-2 text-sm text-white transition hover:bg-white/[0.05]"
+                            onClick={() => {
+                              setFocusedLeadId(lead.id);
+                              setExpandedLeadId((current) => (current === lead.id ? null : lead.id));
+                            }}
+                            className="results-row__cell results-row__business"
                           >
-                            View lead
+                            <div className="grid gap-1.5 text-left">
+                              <p className="card-title text-[15px] text-white">{lead.businessName}</p>
+                              <p className="text-[12px] text-slate-500">
+                                {lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews
+                              </p>
+                              <p className="text-[12px] uppercase tracking-[0.12em] text-cyan-300/75">{lead.niche}</p>
+                            </div>
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+                          <div className="results-row__cell">
+                            <div className="grid gap-1.5 text-sm text-slate-300">
+                              <p className="text-slate-100">{lead.phone}</p>
+                              <p className="truncate text-slate-400">{lead.website}</p>
+                              <p className="truncate text-slate-500">{lead.address}</p>
+                            </div>
+                          </div>
+
+                          <div className="results-row__cell">
+                            <div className="grid gap-3">
+                              <ScorePill score={lead.leadScore} />
+                              <div className="flex flex-wrap gap-2">
+                                {lead.issueLabels.slice(0, 2).map((issue) => (
+                                  <IssueBadge key={issue} issue={issue} />
+                                ))}
+                                {lead.issueLabels.length > 2 ? <Badge>+{lead.issueLabels.length - 2} more</Badge> : null}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="results-row__cell">
+                            <div className="grid gap-1.5">
+                              <p className="font-medium text-white">{lead.opportunityType}</p>
+                              <p className="text-sm leading-6 text-slate-300">{lead.pitch.serviceSuggestion}</p>
+                              <p className="line-clamp-2 text-[13px] leading-6 text-slate-500">{lead.pitch.emailPitch}</p>
+                            </div>
+                          </div>
+
+                          <div className="results-row__cell">
+                            <div className="results-row__actions">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFocusedLeadId(lead.id);
+                                  setExpandedLeadId((current) => (current === lead.id ? null : lead.id));
+                                }}
+                                className="glass-button inline-flex h-[42px] items-center justify-center gap-2 rounded-full border border-white/8 px-4 text-sm text-white transition hover:bg-white/[0.05]"
+                              >
+                                Details
+                                <ChevronDown className={`h-4 w-4 transition ${isExpanded ? "rotate-180" : ""}`} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setFocusedLeadId(lead.id);
+                                  setSelectedLead(lead);
+                                }}
+                                className="glass-button inline-flex h-[42px] items-center justify-center rounded-full border border-white/8 px-4 text-sm text-white transition hover:bg-white/[0.05]"
+                              >
+                                View lead
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {isExpanded ? (
+                          <div className="results-row__details">
+                            <div className="results-row__detail-card">
+                              <p className="meta-text text-slate-400">Business and contact</p>
+                              <div className="mt-3 grid gap-2 text-sm leading-6 text-slate-300">
+                                <p>{lead.phone}</p>
+                                <p className="break-all">{lead.website}</p>
+                                <p>{lead.address}</p>
+                                <p className="text-slate-500">{lead.location}</p>
+                              </div>
+                            </div>
+
+                            <div className="results-row__detail-card">
+                              <p className="meta-text text-slate-400">Opportunity and recommendation</p>
+                              <div className="mt-3 grid gap-2 text-sm leading-6 text-slate-300">
+                                <p className="font-medium text-white">{lead.opportunityType}</p>
+                                <p>{lead.opportunityInsight}</p>
+                                <p className="text-slate-100">{lead.pitch.serviceSuggestion}</p>
+                              </div>
+                            </div>
+
+                            <div className="results-row__detail-card">
+                              <p className="meta-text text-slate-400">Issue tags</p>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {lead.issueLabels.map((issue) => (
+                                  <IssueBadge key={issue} issue={issue} />
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="results-row__detail-card">
+                              <p className="meta-text text-slate-400">Pitch preview</p>
+                              <p className="mt-3 text-sm leading-6 text-slate-300">{lead.pitch.emailPitch}</p>
+                            </div>
+                          </div>
+                        ) : null}
+                      </article>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </>

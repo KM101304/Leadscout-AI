@@ -2,7 +2,7 @@
 
 import type { Map as MapboxMap, Marker as MapboxMarker } from "mapbox-gl";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapPinned, Phone, Sparkles } from "lucide-react";
+import { Globe, MapPinned, Phone, Sparkles } from "lucide-react";
 import { Lead } from "@/lib/types";
 import { Badge, IssueBadge, ScorePill } from "@/components/ui";
 
@@ -233,6 +233,10 @@ export function LeadMap({
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-cyan-300" />
                 <span>{focusedLead.phone}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Globe className="h-4 w-4 text-cyan-300" />
+                <span className="break-all">{focusedLead.website}</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPinned className="h-4 w-4 text-cyan-300" />

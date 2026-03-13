@@ -29,9 +29,9 @@ export async function AppShell({
   const viewer = await getViewer();
 
   return (
-    <main className="shell pb-[calc(92px+env(safe-area-inset-bottom,0px))] pt-4 md:py-10 xl:pb-10">
+    <main className="shell app-shell pb-[calc(100px+env(safe-area-inset-bottom,0px))] xl:pb-10">
       <div className="dashboard-shell">
-        <aside className="panel content-stack hidden rounded-[28px] p-6 xl:sticky xl:top-24 xl:grid xl:self-start">
+        <aside className="panel content-stack hidden rounded-[28px] p-6 xl:sticky xl:top-[112px] xl:grid xl:self-start">
           <div className="rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
             <BrandMark compact />
           </div>
@@ -71,8 +71,8 @@ export async function AppShell({
           </div>
         </aside>
 
-        <section className="min-w-0">
-          <div className="surface-primary rounded-[24px] px-5 py-5 md:rounded-[28px] md:px-8 md:py-7">
+        <section className="app-shell__main min-w-0">
+          <div className="surface-primary app-shell__hero rounded-[24px] px-5 py-5 md:rounded-[28px] md:px-8 md:py-7">
             <div className="dashboard-header-grid">
               <div className="min-w-0">
                 <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Workspace</p>
@@ -92,7 +92,7 @@ export async function AppShell({
               </div>
             </div>
           </div>
-          <div className="mt-5 md:mt-8">{children}</div>
+          <div className="app-shell__content">{children}</div>
         </section>
       </div>
     </main>
