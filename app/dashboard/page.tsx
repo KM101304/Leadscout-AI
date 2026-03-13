@@ -11,6 +11,7 @@ export default async function DashboardPage() {
       title="Search local markets and surface easy wins"
       subtitle="Run a real scan from one query and keep every downstream insight aligned to that search."
       activeNav="dashboard"
+      showWorkspaceHeader={false}
     >
       <div className="app-page-stack">
         <SearchForm />

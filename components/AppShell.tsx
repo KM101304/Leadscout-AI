@@ -18,11 +18,13 @@ export async function AppShell({
   title,
   subtitle,
   activeNav,
+  showWorkspaceHeader = true,
   children
 }: {
   title: string;
   subtitle: string;
   activeNav: "dashboard" | "saved-leads" | "exports" | "settings" | "pricing";
+  showWorkspaceHeader?: boolean;
   children: ReactNode;
 }) {
   const viewer = await getViewer();
@@ -69,26 +71,28 @@ export async function AppShell({
         </aside>
 
         <section className="app-shell__main min-w-0">
-          <div className="surface-primary app-shell__hero rounded-[24px] px-5 py-5 md:rounded-[28px] md:px-8 md:py-7">
-            <div className="dashboard-header-grid">
-              <div className="min-w-0">
-                <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Workspace</p>
-                <h1 className="mt-2.5 text-balance font-heading text-[25px] font-semibold leading-[1.08] tracking-[-0.04em] text-white md:mt-3 md:text-[28px] md:page-title">
-                  {title}
-                </h1>
-                <p className="mt-2.5 max-w-3xl text-[14px] leading-6 text-slate-300 md:mt-3 md:text-[15px] md:leading-7">{subtitle}</p>
-              </div>
-              <div className="hidden flex-wrap items-center gap-3 xl:justify-end">
-                <div className="surface-secondary hidden min-w-[320px] items-center gap-3 rounded-[18px] px-4 py-3 text-sm text-slate-300 lg:flex">
-                  <Search className="h-4 w-4 text-cyan-300" />
-                  Search markets, issues, or saved notes
+          {showWorkspaceHeader ? (
+            <div className="surface-primary app-shell__hero rounded-[24px] px-5 py-5 md:rounded-[28px] md:px-8 md:py-7">
+              <div className="dashboard-header-grid">
+                <div className="min-w-0">
+                  <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Workspace</p>
+                  <h1 className="mt-2.5 text-balance font-heading text-[25px] font-semibold leading-[1.08] tracking-[-0.04em] text-white md:mt-3 md:text-[28px] md:page-title">
+                    {title}
+                  </h1>
+                  <p className="mt-2.5 max-w-3xl text-[14px] leading-6 text-slate-300 md:mt-3 md:text-[15px] md:leading-7">{subtitle}</p>
                 </div>
-                <button className="glass-button surface-secondary rounded-[16px] p-3 text-slate-300 hover:text-white">
-                  <Bell className="h-5 w-5" />
-                </button>
+                <div className="hidden flex-wrap items-center gap-3 xl:justify-end">
+                  <div className="surface-secondary hidden min-w-[320px] items-center gap-3 rounded-[18px] px-4 py-3 text-sm text-slate-300 lg:flex">
+                    <Search className="h-4 w-4 text-cyan-300" />
+                    Search markets, issues, or saved notes
+                  </div>
+                  <button className="glass-button surface-secondary rounded-[16px] p-3 text-slate-300 hover:text-white">
+                    <Bell className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
           <div className="app-shell__content">{children}</div>
         </section>
       </div>
