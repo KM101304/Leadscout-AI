@@ -12,7 +12,7 @@ export async function TopNav() {
   return (
     <>
       <header className="top-nav sticky top-0 z-40 border-b border-white/10 bg-slate-950/75 backdrop-blur-2xl">
-        <div className="shell top-nav__inner flex items-center justify-between gap-4 py-4">
+        <div className="top-nav__frame top-nav__inner flex items-center justify-between gap-4 py-4">
           <Link href="/" className="text-white">
             <BrandMark />
           </Link>
@@ -70,7 +70,6 @@ export async function TopNav() {
       {isSignedIn ? (
         <>
           <MobileTabNav />
-          <div className="mobile-tab-nav-spacer lg:hidden" aria-hidden="true" />
         </>
       ) : null}
     </>

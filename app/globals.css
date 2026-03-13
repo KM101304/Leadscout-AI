@@ -84,13 +84,30 @@ button {
   min-height: 76px;
 }
 
+.top-nav__frame {
+  width: min(100%, 1496px);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
 .app-shell {
   padding-top: 24px;
+}
+
+.app-shell--authenticated {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+}
+
+.app-shell__frame {
+  width: min(100%, 1496px);
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
 .app-shell__main {
   display: grid;
   gap: 24px;
+  min-width: 0;
 }
 
 .app-shell__hero {
@@ -173,20 +190,25 @@ select:focus-visible {
 .dashboard-shell {
   display: grid;
   gap: 24px;
+  align-items: start;
 }
 
 .app-sidebar {
   display: grid;
   gap: 16px;
   align-content: start;
+  min-width: 0;
 }
 
 .app-sidebar__nav {
+  display: grid;
   gap: 10px;
 }
 
 .app-sidebar__nav-link {
   min-height: 46px;
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .app-sidebar__account .glass-button {
@@ -688,16 +710,17 @@ textarea::placeholder {
 
 .mobile-tab-nav {
   position: fixed;
-  right: 12px;
+  left: 50%;
   bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  left: 12px;
   z-index: 50;
+  width: min(calc(100% - 24px), 520px);
+  transform: translateX(-50%);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 24px;
+  border-radius: 22px;
   background: rgba(7, 15, 26, 0.9);
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.34);
   backdrop-filter: blur(22px);
@@ -705,6 +728,7 @@ textarea::placeholder {
 
 .mobile-tab-nav__item {
   display: grid;
+  min-width: 0;
   justify-items: center;
   gap: 5px;
   border-radius: 16px;
@@ -715,6 +739,14 @@ textarea::placeholder {
   text-align: center;
 }
 
+.mobile-tab-nav__item span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .mobile-tab-nav__item.is-active {
   background: rgba(56, 189, 248, 0.14);
   color: white;
@@ -722,7 +754,7 @@ textarea::placeholder {
 }
 
 .mobile-tab-nav-spacer {
-  height: calc(132px + env(safe-area-inset-bottom, 0px));
+  display: none;
 }
 
 .landing-stack {
@@ -778,7 +810,7 @@ textarea::placeholder {
   }
 
   .dashboard-shell {
-    gap: 20px;
+    gap: 18px;
   }
 
   .landing-stack {
@@ -813,6 +845,10 @@ textarea::placeholder {
     min-height: 60px;
     padding-top: 10px;
     padding-bottom: 12px;
+  }
+
+  .top-nav__frame {
+    padding: 0 14px;
   }
 
   .field-shell {
@@ -867,23 +903,56 @@ textarea::placeholder {
   }
 
   .app-shell {
-    padding-top: 18px;
+    padding-top: 14px;
+  }
+
+  .app-shell--authenticated {
+    padding-bottom: calc(102px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-shell__frame {
+    padding: 0 14px;
   }
 
   .app-shell__main {
-    gap: 20px;
+    gap: 18px;
   }
 
   .app-shell__content {
-    gap: 20px;
+    gap: 18px;
+  }
+
+  .dashboard-header-grid {
+    gap: 16px;
+  }
+
+  .mobile-tab-nav {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    width: min(calc(100% - 20px), 32rem);
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .mobile-tab-nav__item {
+    gap: 4px;
+    padding: 7px 4px 6px;
+    font-size: 10px;
   }
 
   .map-stage {
-    min-height: 360px;
+    min-height: 340px;
   }
 
   .lead-map-fallback__marker span {
     display: none;
+  }
+
+  .lead-map-fallback__legend {
+    left: 16px;
+    right: auto;
+    max-width: calc(100% - 32px);
+    gap: 10px;
+    padding: 9px 11px;
   }
 }
 
@@ -913,13 +982,21 @@ textarea::placeholder {
 }
 
 @media (min-width: 1280px) {
-  .app-shell {
-    padding-left: 16px;
-    padding-right: 24px;
+  .app-shell--authenticated {
+    padding-bottom: 40px;
+  }
+
+  .app-shell__frame {
+    padding: 0 24px;
+  }
+
+  .top-nav__frame {
+    padding: 0 24px;
   }
 
   .dashboard-shell {
-    grid-template-columns: 228px minmax(0, 1fr);
+    grid-template-columns: minmax(236px, 248px) minmax(0, 1fr);
+    gap: 32px;
     align-items: start;
   }
 

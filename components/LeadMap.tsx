@@ -31,7 +31,9 @@ export function LeadMap({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
   const markersRef = useRef<MapboxMarker[]>([]);
+  const markerNodesRef = useRef(new Map<string, HTMLButtonElement>());
   const onSelectLeadRef = useRef(onSelectLead);
+  const boundsKeyRef = useRef<string | null>(null);
   const validLeads = useMemo(() => leads.filter(hasCoordinates), [leads]);
   const [focusedLead, setFocusedLead] = useState<Lead | null>(validLeads[0] ?? leads[0] ?? null);
 
@@ -86,8 +88,12 @@ export function LeadMap({
       const map = mapRef.current;
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
+      markerNodesRef.current.clear();
 
       const bounds = new mapboxgl.LngLatBounds();
+      const boundsKey = validLeads
+        .map((lead) => `${lead.id}:${lead.coordinates.latitude}:${lead.coordinates.longitude}`)
+        .join("|");
 
       validLeads.forEach((lead) => {
         bounds.extend([lead.coordinates.longitude, lead.coordinates.latitude]);
@@ -101,6 +107,7 @@ export function LeadMap({
           setFocusedLead(lead);
           onSelectLeadRef.current?.(lead);
         };
+        markerNodesRef.current.set(lead.id, markerNode);
 
         const marker = new mapboxgl.Marker({ element: markerNode, anchor: "center" })
           .setLngLat([lead.coordinates.longitude, lead.coordinates.latitude])
@@ -109,12 +116,13 @@ export function LeadMap({
         markersRef.current.push(marker);
       });
 
-      if (!bounds.isEmpty()) {
+      if (!bounds.isEmpty() && boundsKeyRef.current !== boundsKey) {
         map.fitBounds(bounds, {
           padding: 64,
           maxZoom: 12,
           duration: 0
         });
+        boundsKeyRef.current = boundsKey;
       }
     };
 
@@ -128,11 +136,18 @@ export function LeadMap({
   }, [token, validLeads]);
 
   useEffect(() => {
+    markerNodesRef.current.forEach((node, leadId) => {
+      node.classList.toggle("is-active", leadId === focusedLead?.id);
+    });
+  }, [focusedLead]);
+
+  useEffect(() => {
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
+      markerNodesRef.current.clear();
     };
   }, []);
 

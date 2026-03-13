@@ -58,7 +58,6 @@ export default async function HomePage() {
       <section className="shell pt-14 md:pt-24">
         <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(480px,560px)] lg:items-start">
           <div className="max-w-3xl">
-            <Badge tone="success">Outbound prospecting for agencies, consultants, and AI operators</Badge>
             <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-6xl xl:text-7xl">
               Find businesses that actually need your services.
             </h1>

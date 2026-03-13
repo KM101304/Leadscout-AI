@@ -41,7 +41,7 @@ export function SearchForm({
 
   return (
     <form onSubmit={onSubmit} className={`surface-primary rounded-[24px] ${compact ? "p-4" : "p-4 md:p-7"}`}>
-      <div className="mb-5 flex flex-col gap-3 md:mb-8 md:gap-4 md:flex-row md:items-start md:justify-between">
+      <div className="mb-4 flex flex-col gap-2.5 md:mb-8 md:gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="eyebrow">Search intelligence</p>
           <h2 className="section-title mt-2 text-white">Build a local lead list</h2>
@@ -49,7 +49,7 @@ export function SearchForm({
             Choose the market, tighten the filters, and send the workspace straight into a scored results view.
           </p>
         </div>
-        <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-[12px] font-medium text-cyan-100">
+        <div className="inline-flex max-w-full items-center gap-2 self-start rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-[12px] font-medium text-cyan-100">
           <Sparkles className="h-3.5 w-3.5" />
           AI scoring + live data fallback
         </div>
@@ -131,7 +131,7 @@ export function SearchForm({
         </label>
       </div>
 
-      <div className="mt-5 grid gap-4 md:mt-8 lg:grid-cols-[1fr_auto] lg:items-end">
+      <div className="mt-4 grid gap-3.5 md:mt-8 md:gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
         <div className="surface-minimal rounded-[20px] border border-white/6 px-4 py-3.5 text-[13px] leading-6 text-slate-300 md:px-4 md:py-4 md:text-[14px]">
           <div className="flex flex-wrap gap-3">
             <span>Generate in under 10 seconds</span>
