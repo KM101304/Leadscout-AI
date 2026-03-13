@@ -33,7 +33,7 @@ export async function AppShell({
       <div className="dashboard-shell">
         <aside className="app-sidebar panel hidden rounded-[28px] p-5 xl:sticky xl:top-[112px] xl:grid xl:self-start">
           <div className="app-sidebar__brand rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
-            <BrandMark />
+            <BrandMark compact />
           </div>
           <PlanStatus
             tier={viewer.subscription.tier}
