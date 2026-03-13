@@ -913,6 +913,11 @@ textarea::placeholder {
 }
 
 @media (min-width: 1280px) {
+  .app-shell {
+    padding-left: 16px;
+    padding-right: 24px;
+  }
+
   .dashboard-shell {
     grid-template-columns: 228px minmax(0, 1fr);
     align-items: start;
