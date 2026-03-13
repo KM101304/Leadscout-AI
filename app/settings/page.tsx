@@ -7,7 +7,7 @@ export default function SettingsPage() {
       subtitle="Manage workspace defaults and integrations."
       activeNav="settings"
     >
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <section className="surface-primary rounded-[24px] p-6">
           <p className="eyebrow">Account</p>
           <div className="mt-4 grid gap-4">

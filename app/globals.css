@@ -22,6 +22,9 @@
   --radius-lg: 24px;
   --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.18);
   --shadow-strong: 0 28px 70px rgba(0, 0, 0, 0.28);
+  --space-section: 32px;
+  --space-stack: 24px;
+  --space-cluster: 16px;
 }
 
 * {
@@ -70,6 +73,22 @@ button {
   margin: 0 auto;
   max-width: 1320px;
   padding: 0 20px;
+}
+
+.page-section {
+  display: grid;
+  gap: var(--space-section);
+}
+
+.content-stack {
+  display: grid;
+  gap: var(--space-stack);
+}
+
+.content-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-cluster);
 }
 
 .panel {
@@ -251,6 +270,16 @@ textarea::placeholder {
   border-top: 1px solid var(--line);
 }
 
+.panel-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.panel-grid-tight {
+  display: grid;
+  gap: 18px;
+}
+
 .page-title {
   font-size: 32px;
   line-height: 1.2;
@@ -284,6 +313,12 @@ textarea::placeholder {
 @media (max-width: 767px) {
   .shell {
     padding: 0 16px;
+  }
+
+  :root {
+    --space-section: 24px;
+    --space-stack: 20px;
+    --space-cluster: 12px;
   }
 
   .page-title {

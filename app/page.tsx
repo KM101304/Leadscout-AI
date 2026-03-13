@@ -55,7 +55,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section className="shell py-12 md:py-24">
+      <section className="shell py-14 md:py-24">
         <div className="grid gap-8 md:gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <Badge tone="success">Outbound prospecting for agencies, consultants, and AI operators</Badge>
@@ -121,7 +121,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-16">
+      <section className="shell py-20">
         <SectionHeading
           eyebrow="How It Works"
           title="Lead discovery built around speed, clarity, and action"
@@ -138,7 +138,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-16">
+      <section className="shell py-20">
         <div className="panel grid-glow rounded-[2rem] p-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <SectionHeading
@@ -147,7 +147,7 @@ export default async function HomePage() {
               description="LeadScout AI surfaces why a lead matters, what to pitch, and how to act on it without burying you in noise."
             />
           </div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+          <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
             <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -203,7 +203,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-16">
+      <section className="shell py-20">
         <SectionHeading
           eyebrow="Features"
           title="Everything needed to discover, qualify, pitch, and export"
@@ -226,7 +226,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-16" id="pricing">
+      <section className="shell py-20" id="pricing">
         <SectionHeading
           eyebrow="Pricing"
           title="Start free, upgrade when the pipeline gets serious"

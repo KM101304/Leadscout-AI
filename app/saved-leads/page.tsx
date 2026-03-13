@@ -19,12 +19,12 @@ export default async function SavedLeadsPage() {
       activeNav="saved-leads"
     >
       {saved.length > 0 ? (
-        <div className="grid gap-6">
+        <div className="grid gap-8">
           <div className="flex flex-wrap gap-3">
             <Badge>{saved.length} saved</Badge>
             <Badge tone="success">{saved.filter((lead) => lead.leadScore >= 80).length} high opportunity</Badge>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-2">
             {saved.map((lead) => (
               <LeadCard key={lead.id} lead={lead} />
             ))}

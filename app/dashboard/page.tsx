@@ -18,7 +18,7 @@ export default async function DashboardPage() {
       subtitle="Surface high-opportunity leads and prepare outreach."
       activeNav="dashboard"
     >
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_360px] xl:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_360px] xl:items-start">
         <SearchForm initialLocation="Seattle" initialNiche="contractors" />
 
         <div className="surface-primary rounded-[24px] p-6">
@@ -56,20 +56,20 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="surface-primary rounded-[24px] p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="section-title text-white">High-priority leads</h2>
             <p className="meta-text text-slate-400">Seattle contractors</p>
           </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {preview.leads.slice(0, 6).map((lead) => (
               <LeadCard key={lead.id} lead={lead} />
             ))}
           </div>
         </section>
 
-        <div className="grid gap-6">
+        <div className="grid gap-8">
           <UpgradePrompt
             tier="pro"
             title="Pro makes the workspace feel complete"

@@ -14,7 +14,7 @@ export default function ExportsPage() {
       subtitle="Prepare outreach-ready files and track export status."
       activeNav="exports"
     >
-      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="grid gap-8 xl:grid-cols-[320px_minmax(0,1fr)]">
         <section className="surface-primary rounded-[24px] p-6">
           <p className="eyebrow">Export snapshot</p>
           <div className="mt-4 grid gap-4">
@@ -40,39 +40,41 @@ export default function ExportsPage() {
             </div>
             <Badge tone="success">{exportRows.length} lists</Badge>
           </div>
-          <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="text-slate-400">
-              <tr className="border-b border-white/8">
-                <th className="px-3 py-3 font-medium">List</th>
-                <th className="px-3 py-3 font-medium">Type</th>
-                <th className="px-3 py-3 font-medium">Lead count</th>
-                <th className="px-3 py-3 font-medium">Status</th>
-                <th className="px-3 py-3 font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {exportRows.map((row) => (
-                <tr key={row.name} className="border-b border-white/5 transition hover:bg-white/[0.03]">
-                  <td className="px-3 py-[18px] text-white">{row.name}</td>
-                  <td className="px-3 py-[18px] text-slate-300">{row.type}</td>
-                  <td className="px-3 py-[18px] text-slate-300">{row.count}</td>
-                  <td className="px-3 py-4">
-                    <Badge tone={row.status === "Ready" ? "success" : row.status === "Queued" ? "warning" : "info"}>
-                      {row.status}
-                    </Badge>
-                  </td>
-                  <td className="px-3 py-4">
-                    <button className="glass-button rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-[14px] text-white">
-                      Download
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="mt-6 overflow-hidden rounded-[20px] border border-white/6">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-sm">
+                <thead className="text-slate-400">
+                  <tr className="border-b border-white/8">
+                    <th className="px-3 py-3 font-medium">List</th>
+                    <th className="px-3 py-3 font-medium">Type</th>
+                    <th className="px-3 py-3 font-medium">Lead count</th>
+                    <th className="px-3 py-3 font-medium">Status</th>
+                    <th className="px-3 py-3 font-medium">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {exportRows.map((row) => (
+                    <tr key={row.name} className="border-b border-white/5 transition hover:bg-white/[0.03]">
+                      <td className="px-3 py-[18px] text-white">{row.name}</td>
+                      <td className="px-3 py-[18px] text-slate-300">{row.type}</td>
+                      <td className="px-3 py-[18px] text-slate-300">{row.count}</td>
+                      <td className="px-3 py-4">
+                        <Badge tone={row.status === "Ready" ? "success" : row.status === "Queued" ? "warning" : "info"}>
+                          {row.status}
+                        </Badge>
+                      </td>
+                      <td className="px-3 py-4">
+                        <button className="glass-button rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-[14px] text-white">
+                          Download
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
       </div>
     </AppShell>
   );

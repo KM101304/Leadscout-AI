@@ -39,19 +39,19 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       subtitle="Review scores, inspect issues, and prepare outreach."
       activeNav="dashboard"
     >
-      <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
+      <div className="grid gap-8 xl:grid-cols-[1fr_320px]">
         <section className="min-w-0">
           <div className="flex flex-wrap gap-3">
             <Badge>{result.summary.scanned} scanned</Badge>
             <Badge tone="success">{result.summary.highPriority} high opportunity</Badge>
             <Badge tone="warning">{result.summary.averageScore} avg score</Badge>
           </div>
-          <div className="mt-6">
+          <div className="mt-8">
             <LeadTable leads={result.leads} />
           </div>
         </section>
 
-        <aside className="grid gap-6">
+        <aside className="grid gap-8">
           <section className="surface-primary rounded-[24px] p-6">
             <p className="eyebrow">Scan summary</p>
             <div className="mt-4 grid gap-4">

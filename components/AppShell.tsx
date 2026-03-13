@@ -29,14 +29,14 @@ export async function AppShell({
 
   return (
     <main className="shell py-6 md:py-10">
-      <div className="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="panel rounded-[24px] p-4 md:p-6">
+      <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="panel content-stack rounded-[24px] p-4 md:p-6">
           <PlanStatus
             tier={viewer.subscription.tier}
             leadsUsed={viewer.subscription.leadsUsedThisMonth}
             leadsLimit={viewer.subscription.leadsLimit}
           />
-          <nav className="mt-4 flex gap-3 overflow-x-auto pb-1 xl:mt-6 xl:grid xl:overflow-visible xl:pb-0">
+          <nav className="flex gap-3 overflow-x-auto pb-1 xl:grid xl:overflow-visible xl:pb-0">
             {navItems.map((item) => {
               const Icon = item.icon;
               const key =
@@ -60,7 +60,7 @@ export async function AppShell({
               );
             })}
           </nav>
-          <div className="mt-6 rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+          <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
             <p className="meta-text text-slate-400">Signed in as</p>
             <p className="mt-2 truncate text-sm font-medium text-white">{viewer.user?.email ?? "Unknown user"}</p>
             <LogoutButton className="glass-button mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10" />
@@ -86,7 +86,7 @@ export async function AppShell({
               </div>
             </div>
           </div>
-          <div className="mt-6">{children}</div>
+          <div className="mt-8">{children}</div>
         </section>
       </div>
     </main>

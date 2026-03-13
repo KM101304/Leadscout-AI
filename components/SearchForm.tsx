@@ -41,7 +41,7 @@ export function SearchForm({
 
   return (
     <form onSubmit={onSubmit} className={`surface-primary rounded-[24px] ${compact ? "p-4" : "p-5 md:p-7"}`}>
-      <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="eyebrow">Search intelligence</p>
           <h2 className="section-title mt-2 text-white">Build a local lead list</h2>
@@ -55,7 +55,7 @@ export function SearchForm({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         <label className="space-y-2">
           <span className="field-label">Location</span>
           <div className="field-shell">
@@ -131,7 +131,7 @@ export function SearchForm({
         </label>
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+      <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
         <div className="surface-minimal rounded-[20px] border border-white/6 px-4 py-4 text-[14px] text-slate-300">
           <div className="flex flex-wrap gap-3">
             <span>Generate in under 10 seconds</span>
