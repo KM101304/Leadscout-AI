@@ -75,7 +75,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           <section className="results-layout">
             <LeadTable leads={session.leads} />
 
-            <aside className="results-insights-grid">
+            <aside className="results-rail">
               <section className="surface-primary rounded-[26px] section-block">
                 <p className="eyebrow">Export manager</p>
                 <p className="mt-3 text-[14px] leading-6 text-slate-300">

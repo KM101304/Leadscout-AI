@@ -172,10 +172,10 @@ export function LeadMap({
   }, [validLeads]);
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="grid gap-5 2xl:grid-cols-[minmax(0,1.5fr)_minmax(340px,0.78fr)]">
       <div className="map-stage overflow-hidden rounded-[24px] border border-white/8">
         {token && validLeads.length ? (
-          <div ref={mapContainerRef} className="h-[500px] w-full" />
+          <div ref={mapContainerRef} className="h-[420px] w-full md:h-[520px] xl:h-[620px] 2xl:h-[680px]" />
         ) : (
           <div className="lead-map-fallback">
             <div className="lead-map-fallback__header">
@@ -217,7 +217,7 @@ export function LeadMap({
         )}
       </div>
 
-      <aside className="surface-primary rounded-[24px] p-5">
+      <aside className="surface-primary rounded-[24px] p-5 2xl:sticky 2xl:top-[104px]">
         {focusedLead ? (
           <div className="grid gap-5">
             <div className="grid gap-3">

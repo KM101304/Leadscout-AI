@@ -554,6 +554,12 @@ textarea::placeholder {
   align-items: start;
 }
 
+.results-rail {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+
 .results-workspace__topbar {
   display: grid;
   gap: 18px;
@@ -597,6 +603,7 @@ textarea::placeholder {
 
 .results-table {
   display: grid;
+  min-width: 1280px;
 }
 
 .results-table__head {
@@ -686,7 +693,7 @@ textarea::placeholder {
 }
 
 .map-stage {
-  min-height: 520px;
+  min-height: 640px;
   background:
     radial-gradient(circle at top left, rgba(76, 183, 255, 0.1), transparent 28%),
     linear-gradient(180deg, rgba(10, 18, 30, 0.98), rgba(7, 15, 26, 0.94));
@@ -703,7 +710,7 @@ textarea::placeholder {
 
 .lead-map-fallback {
   display: grid;
-  min-height: 500px;
+  min-height: 620px;
 }
 
 .lead-map-fallback__header {
@@ -718,7 +725,7 @@ textarea::placeholder {
 .lead-map-fallback__canvas {
   position: relative;
   margin: 16px 20px 0;
-  min-height: 360px;
+  min-height: 500px;
   border: 1px solid var(--line);
   border-radius: 22px;
   background:
@@ -1016,9 +1023,6 @@ textarea::placeholder {
     grid-template-columns: minmax(0, 1.7fr) 220px 220px;
   }
 
-  .results-row__details {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (min-width: 1024px) {
@@ -1031,8 +1035,17 @@ textarea::placeholder {
     height: 0;
   }
 
+}
+
+@media (min-width: 1280px) {
+  .results-row__details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
   .results-layout {
-    grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.68fr);
+    grid-template-columns: minmax(0, 1.82fr) minmax(280px, 0.44fr);
   }
 }
 
