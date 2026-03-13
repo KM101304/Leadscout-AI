@@ -3,14 +3,16 @@ import { Bell, ChevronRight, LayoutDashboard } from "lucide-react";
 import { getViewer } from "@/lib/auth";
 import { LogoutButton } from "@/components/LogoutButton";
 import { BrandMark } from "@/components/BrandMark";
+import { MobileTabNav } from "@/components/MobileTabNav";
 
 export async function TopNav() {
   const viewer = await getViewer();
   const isSignedIn = Boolean(viewer.user);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/75 backdrop-blur-2xl">
-      <div className="shell flex items-center justify-between gap-4 py-4">
+    <>
+      <header className="top-nav sticky top-0 z-40 border-b border-white/10 bg-slate-950/75 backdrop-blur-2xl">
+        <div className="shell top-nav__inner flex items-center justify-between gap-4 py-4">
         <Link href="/" className="text-white">
           <BrandMark />
         </Link>
@@ -48,20 +50,24 @@ export async function TopNav() {
           )}
         </nav>
         <div className="flex items-center gap-2 lg:hidden">
-          <Link
-            href={isSignedIn ? "/dashboard" : "/login"}
-            className="glass-button rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-[14px] font-medium text-white"
-          >
-            <span className="inline-flex items-center gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              {isSignedIn ? "Dashboard" : "Login"}
-            </span>
-          </Link>
+          {isSignedIn ? null : (
+            <Link
+              href="/login"
+              className="glass-button rounded-full border border-white/8 bg-white/[0.04] px-3.5 py-2 text-[13px] font-medium text-white"
+            >
+              <span className="inline-flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                Login
+              </span>
+            </Link>
+          )}
           <button className="glass-button rounded-full border border-white/8 bg-white/[0.04] p-2 text-white">
             <Bell className="h-4 w-4" />
           </button>
         </div>
-      </div>
-    </header>
+        </div>
+      </header>
+      {isSignedIn ? <MobileTabNav /> : null}
+    </>
   );
 }

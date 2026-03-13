@@ -49,8 +49,8 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
         <div className="results-workspace__topbar">
           <div className="min-w-0">
             <p className="eyebrow">Results workspace</p>
-            <h2 className="section-title mt-3 text-balance text-white">Lead table first, insights second, clutter removed</h2>
-            <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-300">
+            <h2 className="section-title mt-2.5 text-balance text-white md:mt-3">Lead table first, insights second, clutter removed</h2>
+            <p className="mt-2.5 max-w-3xl text-[14px] leading-6 text-slate-300 md:mt-3 md:text-[15px] md:leading-7">
               Review the scored scan, tighten the list, and switch between the table and geographic map without losing
               selection state.
             </p>
@@ -126,27 +126,27 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
           <>
             <div className="mt-8 grid gap-4 md:hidden">
               {filteredLeads.map((lead) => (
-                <article key={lead.id} className="surface-primary rounded-[22px] p-5">
+                <article key={lead.id} className="surface-primary rounded-[22px] p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <p className="card-title text-white">{lead.businessName}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">{lead.opportunityType}</p>
+                      <p className="mt-1.5 text-sm leading-6 text-slate-300">{lead.opportunityType}</p>
                     </div>
                     <ScorePill score={lead.leadScore} />
                   </div>
-                  <div className="mt-4 grid gap-1 text-sm leading-6 text-slate-300">
+                  <div className="mt-3.5 grid gap-1 text-sm leading-6 text-slate-300">
                     <p>{lead.phone}</p>
                     <p className="text-slate-400">{lead.address}</p>
                     <p className="meta-text text-slate-500">
                       {lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews
                     </p>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="issue-chip-grid mt-3.5">
                     {lead.issueLabels.slice(0, 3).map((issue) => (
                       <IssueBadge key={issue} issue={issue} />
                     ))}
                   </div>
-                  <div className="mt-5 flex items-center justify-between gap-3">
+                  <div className="mt-4 flex items-center justify-between gap-3">
                     <label className="flex items-center gap-2 text-sm text-slate-300">
                       <input
                         type="checkbox"
@@ -159,7 +159,7 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                     <button
                       type="button"
                       onClick={() => setSelectedLead(lead)}
-                      className="glass-button rounded-full border border-white/8 px-4 py-2 text-sm text-white transition hover:bg-white/[0.05]"
+                      className="glass-button rounded-full border border-white/8 px-4 py-2 text-[13px] text-white transition hover:bg-white/[0.05]"
                     >
                       View lead
                     </button>

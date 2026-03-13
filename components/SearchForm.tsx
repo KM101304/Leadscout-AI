@@ -40,12 +40,12 @@ export function SearchForm({
   };
 
   return (
-    <form onSubmit={onSubmit} className={`surface-primary rounded-[24px] ${compact ? "p-4" : "p-5 md:p-7"}`}>
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <form onSubmit={onSubmit} className={`surface-primary rounded-[24px] ${compact ? "p-4" : "p-4 md:p-7"}`}>
+      <div className="mb-5 flex flex-col gap-3 md:mb-8 md:gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="eyebrow">Search intelligence</p>
           <h2 className="section-title mt-2 text-white">Build a local lead list</h2>
-          <p className="mt-2 max-w-xl text-sm text-slate-300">
+          <p className="mt-2 max-w-xl text-[14px] leading-6 text-slate-300">
             Choose the market, tighten the filters, and send the workspace straight into a scored results view.
           </p>
         </div>
@@ -55,7 +55,7 @@ export function SearchForm({
         </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <label className="space-y-2">
           <span className="field-label">Location</span>
           <div className="field-shell">
@@ -131,8 +131,8 @@ export function SearchForm({
         </label>
       </div>
 
-      <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
-        <div className="surface-minimal rounded-[20px] border border-white/6 px-4 py-4 text-[14px] text-slate-300">
+      <div className="mt-5 grid gap-4 md:mt-8 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="surface-minimal rounded-[20px] border border-white/6 px-4 py-3.5 text-[13px] leading-6 text-slate-300 md:px-4 md:py-4 md:text-[14px]">
           <div className="flex flex-wrap gap-3">
             <span>Generate in under 10 seconds</span>
             <span className="text-slate-500">•</span>
@@ -147,7 +147,7 @@ export function SearchForm({
         <button
           type="submit"
           disabled={isLoading}
-          className="cta-primary glass-button inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-full px-7 font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 lg:w-auto"
+          className="cta-primary glass-button inline-flex h-[46px] w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 md:h-[52px] md:text-base lg:w-auto"
         >
           <Search className="h-4 w-4" />
           {isLoading ? "Scanning businesses..." : "Scan businesses"}

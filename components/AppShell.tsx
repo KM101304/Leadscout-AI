@@ -29,9 +29,9 @@ export async function AppShell({
   const viewer = await getViewer();
 
   return (
-    <main className="shell py-6 md:py-10">
+    <main className="shell pb-[calc(92px+env(safe-area-inset-bottom,0px))] pt-4 md:py-10 xl:pb-10">
       <div className="dashboard-shell">
-        <aside className="panel content-stack rounded-[28px] p-4 md:p-5 xl:sticky xl:top-24 xl:self-start">
+        <aside className="panel content-stack hidden rounded-[28px] p-5 xl:sticky xl:top-24 xl:grid xl:self-start">
           <div className="rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
             <BrandMark compact />
           </div>
@@ -72,16 +72,16 @@ export async function AppShell({
         </aside>
 
         <section className="min-w-0">
-          <div className="surface-primary rounded-[28px] px-6 py-6 md:px-8 md:py-7">
+          <div className="surface-primary rounded-[24px] px-5 py-5 md:rounded-[28px] md:px-8 md:py-7">
             <div className="dashboard-header-grid">
               <div className="min-w-0">
                 <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Workspace</p>
-                <h1 className="mt-3 text-balance font-heading text-[28px] font-semibold leading-[1.06] tracking-[-0.04em] text-white md:page-title">
+                <h1 className="mt-2.5 text-balance font-heading text-[25px] font-semibold leading-[1.08] tracking-[-0.04em] text-white md:mt-3 md:text-[28px] md:page-title">
                   {title}
                 </h1>
-                <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-300">{subtitle}</p>
+                <p className="mt-2.5 max-w-3xl text-[14px] leading-6 text-slate-300 md:mt-3 md:text-[15px] md:leading-7">{subtitle}</p>
               </div>
-              <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+              <div className="hidden flex-wrap items-center gap-3 xl:justify-end">
                 <div className="surface-secondary hidden min-w-[320px] items-center gap-3 rounded-[18px] px-4 py-3 text-sm text-slate-300 lg:flex">
                   <Search className="h-4 w-4 text-cyan-300" />
                   Search markets, issues, or saved notes
@@ -92,7 +92,7 @@ export async function AppShell({
               </div>
             </div>
           </div>
-          <div className="mt-8">{children}</div>
+          <div className="mt-5 md:mt-8">{children}</div>
         </section>
       </div>
     </main>
