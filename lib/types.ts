@@ -51,6 +51,10 @@ export interface Lead {
   phone: string;
   website: string;
   address: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
   location: string;
   niche: string;
   reviewCount: number;
@@ -72,6 +76,10 @@ export interface DirectoryBusiness {
   phone: string;
   website: string;
   address: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
   location: string;
   niche: string;
   reviewCount: number;

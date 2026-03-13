@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { PlanStatus } from "@/components/PlanStatus";
 import { getViewer } from "@/lib/auth";
 import { LogoutButton } from "@/components/LogoutButton";
+import { BrandMark } from "@/components/BrandMark";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -29,8 +30,11 @@ export async function AppShell({
 
   return (
     <main className="shell py-6 md:py-10">
-      <div className="grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="panel content-stack rounded-[24px] p-4 md:p-6">
+      <div className="dashboard-shell">
+        <aside className="panel content-stack rounded-[28px] p-4 md:p-5 xl:sticky xl:top-24 xl:self-start">
+          <div className="rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
+            <BrandMark compact />
+          </div>
           <PlanStatus
             tier={viewer.subscription.tier}
             leadsUsed={viewer.subscription.leadsUsedThisMonth}
@@ -68,15 +72,17 @@ export async function AppShell({
         </aside>
 
         <section className="min-w-0">
-          <div className="surface-primary rounded-[24px] px-5 py-5 md:px-7 md:py-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
+          <div className="surface-primary rounded-[28px] px-6 py-6 md:px-8 md:py-7">
+            <div className="dashboard-header-grid">
+              <div className="min-w-0">
                 <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Workspace</p>
-                <h1 className="mt-3 font-heading text-[28px] font-semibold leading-[1.1] text-white md:page-title">{title}</h1>
-                <p className="mt-2 max-w-3xl text-[15px] text-slate-300">{subtitle}</p>
+                <h1 className="mt-3 text-balance font-heading text-[28px] font-semibold leading-[1.06] tracking-[-0.04em] text-white md:page-title">
+                  {title}
+                </h1>
+                <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-300">{subtitle}</p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="surface-secondary hidden min-w-[280px] items-center gap-3 rounded-[18px] px-4 py-3 text-sm text-slate-300 lg:flex">
+              <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+                <div className="surface-secondary hidden min-w-[320px] items-center gap-3 rounded-[18px] px-4 py-3 text-sm text-slate-300 lg:flex">
                   <Search className="h-4 w-4 text-cyan-300" />
                   Search markets, issues, or saved notes
                 </div>

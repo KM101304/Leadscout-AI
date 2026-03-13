@@ -5,17 +5,20 @@ const locationSeeds = {
   vancouver: {
     area: ["Kitsilano", "Downtown", "Mount Pleasant", "Burnaby", "Richmond"],
     street: ["Main St", "Broadway", "Kingsway", "Cambie St", "Granville St"],
-    areaCode: "604"
+    areaCode: "604",
+    center: { latitude: 49.2827, longitude: -123.1207 }
   },
   seattle: {
     area: ["Ballard", "Capitol Hill", "Fremont", "Bellevue", "West Seattle"],
     street: ["Aurora Ave", "Pine St", "Market St", "Rainier Ave", "Olive Way"],
-    areaCode: "206"
+    areaCode: "206",
+    center: { latitude: 47.6062, longitude: -122.3321 }
   },
   toronto: {
     area: ["North York", "Scarborough", "Etobicoke", "Downtown", "Yorkville"],
     street: ["King St", "Queen St", "Bloor St", "Danforth Ave", "Yonge St"],
-    areaCode: "416"
+    areaCode: "416",
+    center: { latitude: 43.6532, longitude: -79.3832 }
   }
 } as const;
 
@@ -90,6 +93,9 @@ export function generateMockBusinesses(location: string, niche: string): Directo
     const street = city.street[index % city.street.length];
     const website = index % 7 === 0 ? "No website" : `https://${slugify(name)}.com`;
     const seed = index + location.length + niche.length;
+    const offsetScale = 0.038;
+    const latitude = city.center.latitude + (((index % 5) - 2) * offsetScale) / 2;
+    const longitude = city.center.longitude + ((Math.floor(index / 5) - 1) * offsetScale * 1.2) / 2;
 
     return {
       id: `${slugify(location)}-${slugify(niche)}-${index + 1}`,
@@ -97,6 +103,10 @@ export function generateMockBusinesses(location: string, niche: string): Directo
       phone: `(${city.areaCode}) 555-${String(1100 + index * 7).slice(-4)}`,
       website,
       address: `${streetNumber} ${street}, ${area}`,
+      coordinates: {
+        latitude: Number(latitude.toFixed(6)),
+        longitude: Number(longitude.toFixed(6))
+      },
       location,
       niche,
       reviewCount: 8 + ((index * 11) % 95),

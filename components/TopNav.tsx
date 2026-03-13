@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bell, ChevronRight, LayoutDashboard } from "lucide-react";
 import { getViewer } from "@/lib/auth";
 import { LogoutButton } from "@/components/LogoutButton";
+import { BrandMark } from "@/components/BrandMark";
 
 export async function TopNav() {
   const viewer = await getViewer();
@@ -10,11 +11,8 @@ export async function TopNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/75 backdrop-blur-2xl">
       <div className="shell flex items-center justify-between gap-4 py-4">
-        <Link href="/" className="flex items-center gap-3 font-semibold tracking-wide text-white">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-400/15 text-sm text-cyan-300 shadow-lg shadow-cyan-950/40">
-            LS
-          </span>
-          <span className="font-heading text-lg">LeadScout AI</span>
+        <Link href="/" className="text-white">
+          <BrandMark />
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-slate-300 lg:flex">
           <Link href="/saved-leads" className="transition hover:text-white">

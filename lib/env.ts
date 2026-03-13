@@ -2,6 +2,7 @@ export const env = {
   openAiApiKey: process.env.OPENAI_API_KEY?.trim() || "",
   openAiModel: process.env.OPENAI_MODEL?.trim() || "gpt-4.1-mini",
   googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY?.trim() || "",
+  nextPublicMapboxAccessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN?.trim() || "",
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "",
   supabasePublishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || "",
   supabaseDatabaseUrl: process.env.SUPABASE_DATABASE_URL?.trim() || "",

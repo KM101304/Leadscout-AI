@@ -28,6 +28,7 @@ export async function runLeadScan(input: SearchInput): Promise<SearchResult> {
         phone: business.phone,
         website: business.website,
         address: business.address,
+        coordinates: business.coordinates,
         location: business.location,
         niche: business.niche,
         reviewCount: business.reviewCount,

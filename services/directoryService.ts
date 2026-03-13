@@ -35,7 +35,7 @@ async function searchGooglePlaces(input: SearchInput): Promise<DirectoryBusiness
         "Content-Type": "application/json",
         "X-Goog-Api-Key": env.googlePlacesApiKey,
         "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.websiteUri,places.nationalPhoneNumber,places.rating,places.userRatingCount"
+          "places.id,places.displayName,places.formattedAddress,places.websiteUri,places.nationalPhoneNumber,places.rating,places.userRatingCount,places.location"
       },
       body: JSON.stringify({
         textQuery: `${input.location} ${input.niche}`,
@@ -57,6 +57,10 @@ async function searchGooglePlaces(input: SearchInput): Promise<DirectoryBusiness
         nationalPhoneNumber?: string;
         rating?: number;
         userRatingCount?: number;
+        location?: {
+          latitude?: number;
+          longitude?: number;
+        };
       }>;
     };
 
@@ -72,6 +76,10 @@ async function searchGooglePlaces(input: SearchInput): Promise<DirectoryBusiness
         phone: place.nationalPhoneNumber || "Phone unavailable",
         website,
         address: place.formattedAddress || `${input.location}`,
+        coordinates: {
+          latitude: place.location?.latitude ?? 0,
+          longitude: place.location?.longitude ?? 0
+        },
         location: input.location,
         niche: input.niche,
         reviewCount,

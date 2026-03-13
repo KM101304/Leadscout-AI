@@ -39,38 +39,38 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       subtitle="Review scores, inspect issues, and prepare outreach."
       activeNav="dashboard"
     >
-      <div className="grid gap-8 xl:grid-cols-[1fr_320px]">
+      <div className="results-page-grid">
         <section className="min-w-0">
-          <div className="flex flex-wrap gap-3">
+          <div className="results-summary-bar">
             <Badge>{result.summary.scanned} scanned</Badge>
             <Badge tone="success">{result.summary.highPriority} high opportunity</Badge>
             <Badge tone="warning">{result.summary.averageScore} avg score</Badge>
           </div>
-          <div className="mt-8">
+          <div className="mt-6 md:mt-7">
             <LeadTable leads={result.leads} />
           </div>
         </section>
 
-        <aside className="grid gap-8">
+        <aside className="results-insights-column">
           <section className="surface-primary rounded-[24px] p-6">
             <p className="eyebrow">Scan summary</p>
-            <div className="mt-4 grid gap-4">
+            <div className="mt-5 grid gap-4">
               <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
                 <p className="meta-text text-slate-400">Most common issue</p>
-                <p className="mt-2 text-sm text-white">{result.leads[0]?.issueLabels[0] ?? "No issues detected"}</p>
+                <p className="mt-2 text-sm leading-6 text-white">{result.leads[0]?.issueLabels[0] ?? "No issues detected"}</p>
               </div>
               <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
                 <p className="meta-text text-slate-400">Best immediate angle</p>
-                <p className="mt-2 text-sm text-white">{result.leads[0]?.pitch.serviceSuggestion ?? "Website modernization"}</p>
+                <p className="mt-2 text-sm leading-6 text-white">{result.leads[0]?.pitch.serviceSuggestion ?? "Website modernization"}</p>
               </div>
               <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
                 <p className="meta-text text-slate-400">Top niche fit</p>
-                <p className="mt-2 text-sm text-white">{niche}</p>
+                <p className="mt-2 text-sm leading-6 text-white">{niche}</p>
               </div>
             </div>
             <div className="mt-6 border-t border-white/8 pt-6">
               <p className="eyebrow">Export manager</p>
-              <p className="mt-3 text-[14px] text-slate-300">Download the full list or export selected leads from the table.</p>
+              <p className="mt-3 text-[14px] leading-6 text-slate-300">Download the full list or export selected leads from the table.</p>
               <div className="mt-4 flex flex-col gap-3">
                 <a href={exportHref} className="cta-primary glass-button rounded-full px-5 py-3 text-center text-[14px] font-semibold">
                   Export full CSV
@@ -84,11 +84,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             <div className="mt-4 divide-y divide-white/6">
               <div className="grid gap-2 py-4 first:pt-0">
                 <p className="card-title text-white">Winning pitch angle</p>
-                <p className="text-[14px] text-slate-300">Lead with missed after-hours bookings, then offer chat + booking recovery.</p>
+                <p className="text-[14px] leading-6 text-slate-300">Lead with missed after-hours bookings, then offer chat + booking recovery.</p>
               </div>
               <div className="grid gap-2 py-4">
                 <p className="card-title text-white">Suggested offer</p>
-                <p className="text-[14px] text-slate-300">Website modernization sprint + booking automation setup.</p>
+                <p className="text-[14px] leading-6 text-slate-300">Website modernization sprint + booking automation setup.</p>
               </div>
             </div>
           </section>
