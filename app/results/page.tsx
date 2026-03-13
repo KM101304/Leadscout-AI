@@ -52,16 +52,35 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </section>
 
         <aside className="grid gap-6">
-          <section className="surface-primary rounded-[20px] p-6">
-            <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Scan summary</p>
-            <div className="mt-4 space-y-3 text-[14px] text-slate-300">
-              <p>Most common issue: {result.leads[0]?.issueLabels[0] ?? "No issues detected"}</p>
-              <p>Best immediate angle: {result.leads[0]?.pitch.serviceSuggestion ?? "Website modernization"}</p>
-              <p>Top niche fit: {niche}</p>
+          <section className="surface-primary rounded-[24px] p-6">
+            <p className="eyebrow">Scan summary</p>
+            <div className="mt-4 grid gap-4">
+              <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+                <p className="meta-text text-slate-400">Most common issue</p>
+                <p className="mt-2 text-sm text-white">{result.leads[0]?.issueLabels[0] ?? "No issues detected"}</p>
+              </div>
+              <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+                <p className="meta-text text-slate-400">Best immediate angle</p>
+                <p className="mt-2 text-sm text-white">{result.leads[0]?.pitch.serviceSuggestion ?? "Website modernization"}</p>
+              </div>
+              <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+                <p className="meta-text text-slate-400">Top niche fit</p>
+                <p className="mt-2 text-sm text-white">{niche}</p>
+              </div>
+            </div>
+            <div className="mt-6 border-t border-white/8 pt-6">
+              <p className="eyebrow">Export manager</p>
+              <p className="mt-3 text-[14px] text-slate-300">Download the full list or export selected leads from the table.</p>
+              <div className="mt-4 flex flex-col gap-3">
+                <a href={exportHref} className="cta-primary glass-button rounded-full px-5 py-3 text-center text-[14px] font-semibold">
+                  Export full CSV
+                </a>
+                <ExportButton leads={result.leads.slice(0, 10)} filename="leadscout-top-10.csv" />
+              </div>
             </div>
           </section>
-          <section className="surface-primary rounded-[20px] p-6">
-            <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Pro intelligence</p>
+          <section className="surface-primary rounded-[24px] p-6">
+            <p className="eyebrow">Pro intelligence</p>
             <div className="mt-4 divide-y divide-white/6">
               <div className="grid gap-2 py-4 first:pt-0">
                 <p className="card-title text-white">Winning pitch angle</p>
@@ -83,19 +102,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
               "Keep notes, statuses, and conversion angles visible to the whole team"
             ]}
           />
-          <section className="surface-primary rounded-[20px] p-6">
-            <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Export manager</p>
-            <p className="mt-4 text-[14px] text-slate-300">Download the full list or export selected leads from the table.</p>
-            <div className="mt-4 flex flex-col gap-3">
-              <a
-                href={exportHref}
-                className="glass-button rounded-full bg-gradient-to-r from-cyan-400 to-sky-400 px-5 py-3 text-center text-[14px] font-semibold text-slate-950"
-              >
-                Export full CSV
-              </a>
-              <ExportButton leads={result.leads.slice(0, 10)} filename="leadscout-top-10.csv" />
-            </div>
-          </section>
         </aside>
       </div>
     </AppShell>

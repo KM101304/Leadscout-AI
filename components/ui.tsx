@@ -11,15 +11,21 @@ export function Badge({
   className?: string;
 }) {
   const toneClass = {
-    default: "border-white/8 bg-white/[0.04] text-slate-200",
-    success: "border-emerald-400/18 bg-emerald-400/10 text-emerald-200",
-    warning: "border-amber-400/18 bg-amber-400/10 text-amber-200",
-    danger: "border-rose-400/18 bg-rose-400/10 text-rose-200",
-    info: "border-sky-400/18 bg-sky-400/10 text-sky-200"
+    default: "border-white/8 bg-white/[0.04] text-slate-100",
+    success: "border-emerald-400/18 bg-emerald-400/10 text-emerald-100",
+    warning: "border-amber-400/18 bg-amber-400/10 text-amber-100",
+    danger: "border-rose-400/18 bg-rose-400/10 text-rose-100",
+    info: "border-sky-400/18 bg-sky-400/10 text-sky-100"
   }[tone];
 
   return (
-    <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-[12px] font-medium", toneClass, className)}>
+    <span
+      className={cn(
+        "inline-flex rounded-full border px-2.5 py-1 text-[12px] font-semibold tracking-[0.01em]",
+        toneClass,
+        className
+      )}
+    >
       {children}
     </span>
   );
@@ -52,9 +58,9 @@ export function SectionHeading({
 }) {
   return (
     <div className="space-y-3">
-      <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">{eyebrow}</p>
-      <h2 className="section-title text-white md:text-[20px]">{title}</h2>
-      {description ? <p className="max-w-3xl text-[14px] text-slate-300">{description}</p> : null}
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 className="section-title text-white">{title}</h2>
+      {description ? <p className="max-w-3xl text-[15px] text-slate-300">{description}</p> : null}
     </div>
   );
 }

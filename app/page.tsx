@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SearchForm } from "@/components/SearchForm";
 import { Badge, IssueBadge, SectionHeading, ScorePill } from "@/components/ui";
 import { Bot, Download, SearchCheck, ShieldAlert, TableProperties } from "lucide-react";
+import { getViewer } from "@/lib/auth";
 
 const steps = [
   {
@@ -47,26 +48,30 @@ const pricing = [
   { name: "Agency", price: "$149", value: "Team accounts, bulk exports, advanced scoring", badge: "Built for outbound teams" }
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const viewer = await getViewer();
+  const primaryHref = viewer.user ? "/dashboard" : "/login";
+  const primaryLabel = viewer.user ? "Open dashboard" : "Login to start scanning";
+
   return (
     <main>
-      <section className="shell py-18 md:py-24">
-        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <section className="shell py-12 md:py-24">
+        <div className="grid gap-8 md:gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <Badge tone="success">Outbound prospecting for agencies, consultants, and AI operators</Badge>
-            <h1 className="mt-6 max-w-4xl text-5xl font-semibold tracking-tight text-white md:text-7xl">
+            <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-7xl">
               Find businesses that actually need your services.
             </h1>
-            <p className="mt-6 max-w-3xl text-lg text-slate-300">
+            <p className="mt-5 max-w-3xl text-[16px] text-slate-300 md:text-lg">
               AI scans local businesses and reveals digital weaknesses you can sell solutions for, from outdated sites
               and weak SEO to missing booking systems, chatbots, and automation gaps.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
-                href="/dashboard"
-                className="glass-button rounded-full bg-gradient-to-r from-cyan-400 to-sky-400 px-6 py-3.5 font-semibold text-slate-950 transition hover:from-cyan-300 hover:to-sky-300"
+                href={primaryHref}
+                className="cta-primary glass-button rounded-full px-6 py-3.5 font-semibold transition"
               >
-                Start scanning leads
+                {primaryLabel}
               </Link>
               <Link
                 href="/results?location=Vancouver&niche=dentists"
@@ -84,9 +89,9 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="panel grid-glow rounded-[2rem] p-4 md:p-5">
-            <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/60 p-4">
-              <div className="mb-4 flex items-center justify-between">
+          <div className="panel rounded-[24px] p-4 md:p-5">
+            <div className="rounded-[16px] border border-white/8 bg-slate-950/60 p-4">
+              <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.35em] text-cyan-300/80">Live product preview</p>
                   <h2 className="mt-2 text-xl font-semibold text-white">Lead discovery console</h2>
@@ -124,7 +129,7 @@ export default function HomePage() {
         />
         <div className="grid gap-6 md:grid-cols-3">
           {steps.map((step, index) => (
-            <article key={step.title} className="panel rounded-[1.75rem] p-6">
+            <article key={step.title} className="panel rounded-[2rem] p-6">
               <p className="text-sm text-cyan-300">0{index + 1}</p>
               <h2 className="mt-4 text-2xl font-semibold text-white">{step.title}</h2>
               <p className="mt-3 text-slate-300">{step.text}</p>
@@ -229,9 +234,9 @@ export default function HomePage() {
         />
         <div className="grid gap-6 md:grid-cols-3">
           {pricing.map((plan) => (
-            <article key={plan.name} className="panel rounded-[1.75rem] p-6">
+            <article key={plan.name} className="panel rounded-[2rem] p-6">
               <Badge tone={plan.name === "Pro" ? "success" : "default"}>{plan.badge}</Badge>
-              <h3 className="text-xl font-semibold text-white">{plan.name}</h3>
+              <h3 className="mt-5 text-xl font-semibold text-white">{plan.name}</h3>
               <p className="mt-4 text-4xl font-semibold text-white">{plan.price}</p>
               <p className="mt-3 text-slate-300">{plan.value}</p>
             </article>
@@ -249,10 +254,10 @@ export default function HomePage() {
             LeadScout AI gives consultants and agencies a premium operating layer for fast, clear, monetizable lead generation.
           </p>
           <Link
-            href="/dashboard"
-            className="glass-button mt-8 inline-flex rounded-full bg-gradient-to-r from-cyan-400 to-sky-400 px-6 py-3 font-semibold text-slate-950 transition hover:from-cyan-300 hover:to-sky-300"
+            href={primaryHref}
+            className="cta-primary glass-button mt-8 inline-flex rounded-full px-6 py-3 font-semibold transition"
           >
-            Start scanning leads
+            {primaryLabel}
           </Link>
         </div>
       </section>

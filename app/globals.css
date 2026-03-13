@@ -1,21 +1,27 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
   --background: #050914;
-  --background-elevated: #0a1220;
-  --background-soft: #101827;
-  --background-card: rgba(10, 17, 31, 0.88);
+  --background-elevated: #091321;
+  --background-soft: #0f1b2f;
+  --background-card: rgba(9, 19, 33, 0.84);
+  --background-card-strong: rgba(13, 24, 40, 0.94);
   --foreground: #ecf3ff;
   --muted: #8ea0be;
   --line: rgba(148, 163, 184, 0.1);
   --line-strong: rgba(148, 163, 184, 0.16);
   --accent: #38bdf8;
   --accent-strong: #22d3ee;
-  --secondary: #8b5cf6;
+  --accent-soft: rgba(56, 189, 248, 0.12);
+  --secondary: #f59e0b;
   --danger: #f43f5e;
   --warning: #f59e0b;
   --success: #22c55e;
+  --radius-sm: 16px;
+  --radius-md: 20px;
+  --radius-lg: 24px;
+  --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.18);
+  --shadow-strong: 0 28px 70px rgba(0, 0, 0, 0.28);
 }
 
 * {
@@ -29,10 +35,13 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #050914 0%, #07111d 100%);
+  background:
+    radial-gradient(circle at top, rgba(34, 211, 238, 0.12), transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.1), transparent 22%),
+    linear-gradient(180deg, #050914 0%, #08111d 52%, #09111b 100%);
   color: var(--foreground);
-  font-family: "Inter", Arial, Helvetica, sans-serif;
-  font-size: 14px;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+  font-size: 15px;
   line-height: 1.6;
 }
 
@@ -48,17 +57,26 @@ textarea {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.28);
+  color: white;
+}
+
 .shell {
   margin: 0 auto;
-  max-width: 1280px;
-  padding: 0 24px;
+  max-width: 1320px;
+  padding: 0 20px;
 }
 
 .panel {
   border: 1px solid var(--line);
-  background: var(--background-card);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(13, 24, 40, 0.95), rgba(9, 18, 31, 0.88));
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
 }
 
 .text-balance {
@@ -87,12 +105,23 @@ textarea {
     transform 180ms ease,
     background-color 180ms ease,
     border-color 180ms ease,
-    box-shadow 180ms ease;
+    box-shadow 180ms ease,
+    color 180ms ease;
 }
 
 .glass-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+}
+
+.glass-button:focus-visible,
+.field-input:focus-visible,
+.field-shell:focus-within,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
 }
 
 .score-pulse {
@@ -140,17 +169,82 @@ textarea {
 
 .surface-primary {
   border: 1px solid var(--line);
-  background: rgba(10, 17, 31, 0.9);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(180deg, rgba(12, 21, 36, 0.96), rgba(10, 18, 30, 0.92));
+  box-shadow: var(--shadow-soft);
 }
 
 .surface-secondary {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .surface-minimal {
   background: rgba(255, 255, 255, 0.025);
+}
+
+.feature-tile {
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.025));
+}
+
+.auth-shell {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background:
+    linear-gradient(180deg, rgba(16, 27, 46, 0.98), rgba(11, 21, 35, 0.96)),
+    linear-gradient(135deg, rgba(56, 189, 248, 0.08), transparent 45%);
+  backdrop-filter: blur(24px);
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b9c8df;
+}
+
+.field-shell {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 18px;
+  background: rgba(3, 10, 20, 0.62);
+  padding: 0 16px;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.field-input {
+  min-height: 52px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: white;
+}
+
+.field-input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+}
+
+.field-input-plain {
+  padding: 0;
+}
+
+.cta-primary {
+  background: linear-gradient(135deg, #67e8f9 0%, #38bdf8 55%, #fbbf24 130%);
+  color: #07111d;
+  box-shadow: 0 16px 34px rgba(56, 189, 248, 0.22);
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(125, 211, 252, 0.9);
 }
 
 .divider {
@@ -164,14 +258,16 @@ textarea {
 }
 
 .section-title {
-  font-size: 20px;
-  line-height: 1.2;
+  font-family: var(--font-heading), Arial, Helvetica, sans-serif;
+  font-size: 24px;
+  line-height: 1.15;
   font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 .card-title {
-  font-size: 16px;
-  line-height: 1.2;
+  font-size: 17px;
+  line-height: 1.25;
   font-weight: 600;
 }
 
@@ -179,6 +275,24 @@ textarea {
   font-size: 12px;
   line-height: 1.4;
   font-weight: 500;
+}
+
+.font-heading {
+  font-family: var(--font-heading), Arial, Helvetica, sans-serif;
+}
+
+@media (max-width: 767px) {
+  .shell {
+    padding: 0 16px;
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+
+  .section-title {
+    font-size: 21px;
+  }
 }
 
 @keyframes progressShine {

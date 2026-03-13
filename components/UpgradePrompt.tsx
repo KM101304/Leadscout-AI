@@ -14,7 +14,7 @@ export function UpgradePrompt({
   bullets: string[];
 }) {
   return (
-    <section className="surface-primary rounded-[20px] p-6">
+    <section className="surface-primary rounded-[24px] p-6">
       <div className="flex items-center justify-between gap-3">
         <Badge tone={tier === "pro" ? "warning" : "default"}>{tier === "pro" ? "Pro unlock" : "Agency unlock"}</Badge>
         {tier === "pro" ? <Sparkles className="h-5 w-5 text-cyan-300" /> : <LockKeyhole className="h-5 w-5 text-violet-300" />}
@@ -23,14 +23,14 @@ export function UpgradePrompt({
       <p className="mt-3 text-[14px] text-slate-300">{description}</p>
       <div className="mt-5 grid gap-3">
         {bullets.map((bullet) => (
-          <div key={bullet} className="surface-minimal rounded-[16px] px-4 py-3 text-[14px] text-slate-200">
+          <div key={bullet} className="surface-minimal rounded-[18px] border border-white/6 px-4 py-3 text-[14px] text-slate-200">
             {bullet}
           </div>
         ))}
       </div>
       <Link
         href="/pricing"
-        className="glass-button mt-6 inline-flex rounded-full bg-gradient-to-r from-cyan-400 to-sky-400 px-5 py-3 text-[14px] font-semibold text-slate-950"
+        className="cta-primary glass-button mt-6 inline-flex rounded-full px-5 py-3 text-[14px] font-semibold"
       >
         See paid plans
       </Link>

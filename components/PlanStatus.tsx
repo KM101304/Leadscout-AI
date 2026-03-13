@@ -15,10 +15,10 @@ export function PlanStatus({
   const usagePct = Math.min(100, Math.round((leadsUsed / Math.max(leadsLimit, 1)) * 100));
 
   return (
-    <div className="rounded-[16px] border border-cyan-400/12 bg-cyan-400/8 p-6">
+    <div className="rounded-[20px] border border-cyan-400/12 bg-cyan-400/8 p-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Plan status</p>
+          <p className="eyebrow">Plan status</p>
           <p className="mt-2 card-title text-white">{plan.name}</p>
         </div>
         <Badge tone={tier === "free" ? "warning" : "success"}>{plan.monthlyLeadLimit}</Badge>

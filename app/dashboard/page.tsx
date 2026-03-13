@@ -21,9 +21,9 @@ export default async function DashboardPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_360px] xl:items-start">
         <SearchForm initialLocation="Seattle" initialNiche="contractors" />
 
-        <div className="surface-primary rounded-[20px] p-6">
+        <div className="surface-primary rounded-[24px] p-6">
           <div className="flex items-center justify-between gap-3">
-            <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Recent scans</p>
+            <p className="eyebrow">Recent scans</p>
             <Badge tone="success">2 active markets</Badge>
           </div>
           <div className="mt-4 divide-y divide-white/6">
@@ -43,12 +43,12 @@ export default async function DashboardPage() {
             </div>
           </div>
           <div className="divider mt-4 pt-4">
-            <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Quick actions</p>
+            <p className="eyebrow">Quick actions</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <a href="/dashboard" className="glass-button surface-secondary rounded-[16px] px-4 py-3 text-[14px] font-medium text-white">
+              <a href="/dashboard" className="glass-button surface-secondary rounded-[18px] px-4 py-3 text-[14px] font-medium text-white">
                 New search
               </a>
-              <a href="/exports" className="glass-button surface-secondary rounded-[16px] px-4 py-3 text-[14px] font-medium text-white">
+              <a href="/exports" className="glass-button surface-secondary rounded-[18px] px-4 py-3 text-[14px] font-medium text-white">
                 Export last list
               </a>
             </div>
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <section className="surface-primary rounded-[20px] p-6">
+        <section className="surface-primary rounded-[24px] p-6">
           <div className="flex items-center justify-between gap-3">
             <h2 className="section-title text-white">High-priority leads</h2>
             <p className="meta-text text-slate-400">Seattle contractors</p>
@@ -80,10 +80,10 @@ export default async function DashboardPage() {
               "Export refined shortlists instead of one-off raw CSVs"
             ]}
           />
-          <section className="surface-primary rounded-[20px] p-6">
+          <section className="surface-primary rounded-[24px] p-6">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="meta-text uppercase tracking-[0.32em] text-cyan-300/80">Pro workspace preview</p>
+                <p className="eyebrow">Pro workspace preview</p>
                 <h2 className="section-title mt-2 text-white">Saved prospecting pipelines</h2>
               </div>
               <Badge tone="warning">Paid</Badge>

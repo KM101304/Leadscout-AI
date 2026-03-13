@@ -17,10 +17,12 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
   const [notes, setNotes] = useState(lead.notes);
 
   return (
-    <aside className="slide-in-panel fixed inset-y-0 right-0 z-50 w-full max-w-2xl border-l border-white/8 bg-slate-950/95 p-6 backdrop-blur-xl">
+    <aside className="slide-in-panel fixed inset-0 z-50 overflow-y-auto bg-slate-950/90 p-3 backdrop-blur-xl md:inset-y-0 md:left-auto md:right-0 md:max-w-2xl md:p-6">
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+      <div className="relative ml-auto rounded-[24px] border border-white/8 bg-slate-950/95 p-4 md:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="meta-text uppercase tracking-[0.32em] text-cyan-300">Lead detail</p>
+          <p className="eyebrow">Lead detail</p>
           <h2 className="section-title mt-2 text-white">{lead.businessName}</h2>
           <div className="mt-3 flex flex-wrap gap-2">
             <ScorePill score={lead.leadScore} />
@@ -36,7 +38,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
         </button>
       </div>
 
-      <div className="mt-8 grid gap-6">
+      <div className="mt-6 grid gap-4 md:mt-8 md:gap-6">
         <section className="surface-secondary rounded-[16px] p-6">
           <h3 className="card-title text-white">Business overview</h3>
           <div className="mt-4 grid gap-4 text-[14px] text-slate-300 md:grid-cols-2">
@@ -111,9 +113,10 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Add custom objections, talking points, or next steps..."
-            className="mt-4 min-h-32 w-full rounded-[16px] border border-white/8 bg-slate-950/80 p-4 text-[14px] text-white outline-none placeholder:text-slate-500"
+            className="mt-4 min-h-32 w-full rounded-[16px] border border-white/8 bg-slate-950/80 p-4 text-[14px] text-white"
           />
         </section>
+      </div>
       </div>
     </aside>
   );

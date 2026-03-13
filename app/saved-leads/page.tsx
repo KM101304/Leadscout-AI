@@ -24,14 +24,14 @@ export default async function SavedLeadsPage() {
             <Badge>{saved.length} saved</Badge>
             <Badge tone="success">{saved.filter((lead) => lead.leadScore >= 80).length} high opportunity</Badge>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
             {saved.map((lead) => (
               <LeadCard key={lead.id} lead={lead} />
             ))}
           </div>
         </div>
       ) : (
-        <div className="surface-primary rounded-[20px] px-6 py-16 text-center text-slate-400">
+        <div className="surface-primary rounded-[24px] px-6 py-16 text-center text-slate-400">
           No saved leads yet. Start a search to discover opportunities worth tracking.
         </div>
       )}

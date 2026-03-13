@@ -39,22 +39,35 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
 
   return (
     <>
-      <div className="surface-primary rounded-[20px] p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-1 flex-col gap-3 md:flex-row">
-            <label className="relative min-w-[260px] flex-1">
+      <div className="surface-primary rounded-[24px] p-5 md:p-6">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow">Results workspace</p>
+              <h2 className="section-title mt-2 text-white">Rank, filter, and export without losing context</h2>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-[14px] text-slate-400">{filteredLeads.length} matching leads</p>
+              {selectedLeads.length > 0 ? (
+                <ExportButton leads={selectedLeads} filename="leadscout-selected-leads.csv" />
+              ) : null}
+            </div>
+          </div>
+
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_190px_220px]">
+            <label className="relative min-w-0">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search within results"
-                className="w-full rounded-[16px] border border-white/8 bg-slate-950/90 py-3 pl-11 pr-4 text-[14px] text-white outline-none"
+                className="field-input min-h-[52px] rounded-[18px] border border-white/8 bg-slate-950/90 py-3 pl-11 pr-4 text-[14px] text-white"
               />
             </label>
             <select
               value={sortKey}
               onChange={(event) => setSortKey(event.target.value as SortKey)}
-              className="rounded-[16px] border border-white/8 bg-slate-950/90 px-4 py-3 text-[14px] text-white outline-none"
+              className="field-input min-h-[52px] rounded-[18px] border border-white/8 bg-slate-950/90 px-4 text-[14px] text-white"
             >
               <option value="leadScore">Sort by score</option>
               <option value="businessName">Sort by name</option>
@@ -63,7 +76,7 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
             <select
               value={filter}
               onChange={(event) => setFilter(event.target.value)}
-              className="rounded-[16px] border border-white/8 bg-slate-950/90 px-4 py-3 text-[14px] text-white outline-none"
+              className="field-input min-h-[52px] rounded-[18px] border border-white/8 bg-slate-950/90 px-4 text-[14px] text-white"
             >
               <option value="all">All issues</option>
               <option value="no-website">No website</option>
@@ -71,12 +84,6 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
               <option value="weak-seo">Weak SEO</option>
               <option value="slow-site">Slow site</option>
             </select>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="text-[14px] text-slate-400">{filteredLeads.length} matching leads</p>
-            {selectedLeads.length > 0 ? (
-              <ExportButton leads={selectedLeads} filename="leadscout-selected-leads.csv" />
-            ) : null}
           </div>
         </div>
 
@@ -86,7 +93,50 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
           <Badge tone="warning">{filteredLeads.filter((lead) => lead.issueTags.includes("weak-seo")).length} weak SEO</Badge>
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-[16px] border border-white/6">
+        <div className="mt-6 grid gap-4 md:hidden">
+          {filteredLeads.map((lead) => (
+            <article key={lead.id} className="surface-secondary rounded-[20px] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="card-title truncate text-white">{lead.businessName}</p>
+                  <p className="mt-1 text-[14px] text-slate-400">{lead.opportunityType}</p>
+                </div>
+                <ScorePill score={lead.leadScore} />
+              </div>
+              <div className="mt-3 grid gap-1 text-[14px] text-slate-300">
+                <p>{lead.phone}</p>
+                <p className="text-slate-400">{lead.address}</p>
+                <p className="meta-text text-slate-500">{lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews</p>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {lead.issueLabels.slice(0, 3).map((issue) => (
+                  <IssueBadge key={issue} issue={issue} />
+                ))}
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <label className="flex items-center gap-2 text-[14px] text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(lead.id)}
+                    onChange={() => toggleLead(lead.id)}
+                    className="h-4 w-4 rounded border-white/15 bg-slate-950"
+                  />
+                  Select
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setSelectedLead(lead)}
+                  className="glass-button rounded-full border border-white/8 px-4 py-2 text-[14px] text-white transition hover:bg-white/[0.05]"
+                >
+                  View lead
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-6 hidden overflow-hidden rounded-[20px] border border-white/6 md:block">
+          <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="bg-white/[0.02] text-slate-400">
               <tr className="border-b border-white/8">
@@ -147,10 +197,11 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {filteredLeads.length === 0 ? (
-          <div className="rounded-[16px] border border-dashed border-white/10 px-6 py-12 text-center text-slate-400">
+          <div className="mt-6 rounded-[20px] border border-dashed border-white/10 px-6 py-12 text-center text-slate-400">
             No leads yet. Try widening the market or adjusting filters.
           </div>
         ) : null}

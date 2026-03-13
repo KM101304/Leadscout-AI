@@ -14,8 +14,33 @@ export default function ExportsPage() {
       subtitle="Prepare outreach-ready files and track export status."
       activeNav="exports"
     >
-      <div className="surface-primary rounded-[20px] p-6">
-        <div className="overflow-x-auto">
+      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+        <section className="surface-primary rounded-[24px] p-6">
+          <p className="eyebrow">Export snapshot</p>
+          <div className="mt-4 grid gap-4">
+            <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+              <p className="meta-text text-slate-400">Ready now</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{exportRows.filter((row) => row.status === "Ready").length}</p>
+            </div>
+            <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+              <p className="meta-text text-slate-400">Queued exports</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{exportRows.filter((row) => row.status === "Queued").length}</p>
+            </div>
+            <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4 text-sm text-slate-300">
+              Keep exports grouped by market so your outreach files stay easy to scan and re-run.
+            </div>
+          </div>
+        </section>
+
+        <div className="surface-primary rounded-[24px] p-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="eyebrow">Outbound files</p>
+              <h2 className="section-title mt-2 text-white">Prepared exports</h2>
+            </div>
+            <Badge tone="success">{exportRows.length} lists</Badge>
+          </div>
+          <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="text-slate-400">
               <tr className="border-b border-white/8">
@@ -47,6 +72,7 @@ export default function ExportsPage() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </AppShell>
   );
