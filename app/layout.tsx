@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./globals.css";
 import { TopNav } from "@/components/TopNav";
@@ -29,6 +30,7 @@ export default async function RootLayout({
       <body className={`${manrope.variable} ${spaceGrotesk.variable}`}>
         <TopNav />
         {children}
+        <Analytics />
       </body>
     </html>
   );
