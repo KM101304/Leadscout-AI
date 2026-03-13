@@ -48,137 +48,138 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
 
   return (
     <>
-      <section className="results-workspace">
-        <div className="results-workspace__topbar">
-          <div className="min-w-0">
-            <p className="eyebrow">Results workspace</p>
-            <h2 className="section-title mt-2.5 text-balance text-white md:mt-3">Lead table first, insights second, clutter removed</h2>
-            <p className="mt-2.5 max-w-3xl text-[14px] leading-6 text-slate-300 md:mt-3 md:text-[15px] md:leading-7">
-              Review the scored scan, tighten the list, and switch between the table and geographic map without losing
-              selection state.
-            </p>
-          </div>
-          <div className="results-workspace__actions">
-            <p className="text-sm text-slate-400">{filteredLeads.length} matching leads</p>
-            {selectedLeads.length > 0 ? (
-              <ExportButton leads={selectedLeads} filename="leadscout-selected-leads.csv" />
-            ) : null}
-          </div>
-        </div>
-
-        <div className="results-workspace__stats">
-          <Badge>{selectedLeads.length} selected</Badge>
-          <Badge tone="success">{highOpportunityCount} high opportunity</Badge>
-          <Badge tone="warning">{weakSeoCount} weak SEO</Badge>
-        </div>
-
-        <div className="results-workspace__controls">
-          <div className="results-workspace__view-toggle">
-            {(["table", "map"] as const).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => setViewMode(mode)}
-                className={viewMode === mode ? "is-active" : ""}
-              >
-                {mode === "table" ? "Table view" : "Map view"}
-              </button>
-            ))}
+      <section className="results-workspace workspace-frame">
+        <div className="workspace-frame__header">
+          <div className="results-workspace__topbar">
+            <div className="min-w-0">
+              <p className="workspace-kicker">Results workspace</p>
+              <h2 className="section-title mt-2.5 text-balance text-white md:mt-3">Review the lead list in a cleaner operating view</h2>
+              <p className="mt-2.5 max-w-3xl text-[14px] leading-6 text-slate-300 md:mt-3 md:text-[15px] md:leading-7">
+                Filter aggressively, hold onto context, and move from scan to outreach without the table fighting for space.
+              </p>
+            </div>
+            <div className="results-workspace__actions">
+              <p className="text-sm text-slate-400">{filteredLeads.length} matching leads</p>
+              {selectedLeads.length > 0 ? (
+                <ExportButton leads={selectedLeads} filename="leadscout-selected-leads.csv" />
+              ) : null}
+            </div>
           </div>
 
-          <div className="results-workspace__filters">
-            <label className="relative min-w-0 xl:col-span-2">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by business, address, issue, or opportunity"
-                className="field-input min-h-[54px] rounded-[18px] border border-white/8 bg-slate-950/92 py-3 pl-11 pr-4 text-[14px] text-white"
-              />
-            </label>
-            <select
-              value={sortKey}
-              onChange={(event) => setSortKey(event.target.value as SortKey)}
-              className="field-input min-h-[54px] rounded-[18px] border border-white/8 bg-slate-950/92 px-4 text-[14px] text-white"
-            >
-              <option value="leadScore">Sort by score</option>
-              <option value="businessName">Sort by name</option>
-              <option value="reviewCount">Sort by reviews</option>
-            </select>
-            <select
-              value={filter}
-              onChange={(event) => setFilter(event.target.value)}
-              className="field-input min-h-[54px] rounded-[18px] border border-white/8 bg-slate-950/92 px-4 text-[14px] text-white"
-            >
-              <option value="all">All issues</option>
-              <option value="no-website">No website</option>
-              <option value="no-booking">No booking</option>
-              <option value="weak-seo">Weak SEO</option>
-              <option value="slow-site">Slow site</option>
-            </select>
+          <div className="results-workspace__stats">
+            <Badge>{selectedLeads.length} selected</Badge>
+            <Badge tone="success">{highOpportunityCount} high opportunity</Badge>
+            <Badge tone="warning">{weakSeoCount} weak SEO</Badge>
           </div>
-        </div>
-
-        {viewMode === "map" ? (
-          <LeadMap
-            leads={filteredLeads}
-            activeLeadId={focusedLead?.id}
-            onSelectLead={(lead) => setFocusedLeadId(lead.id)}
-            onViewLead={(lead) => setSelectedLead(lead)}
-          />
-        ) : (
-          <>
-            <div className="mt-8 grid gap-4 md:hidden">
-              {filteredLeads.map((lead) => (
-                <article key={lead.id} className="surface-primary rounded-[22px] p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="card-title text-white">{lead.businessName}</p>
-                      <p className="mt-1.5 text-sm leading-6 text-slate-300">{lead.opportunityType}</p>
-                    </div>
-                    <ScorePill score={lead.leadScore} />
-                  </div>
-                  <div className="mt-3.5 grid gap-1 text-sm leading-6 text-slate-300">
-                    <p>{lead.phone}</p>
-                    <p className="break-words text-slate-400">{lead.website}</p>
-                    <p className="text-slate-400">{lead.address}</p>
-                    <p className="meta-text text-slate-500">
-                      {lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews
-                    </p>
-                  </div>
-                  <div className="issue-chip-grid mt-3.5">
-                    {lead.issueLabels.map((issue) => (
-                      <IssueBadge key={issue} issue={issue} />
-                    ))}
-                  </div>
-                  <div className="mt-3.5 rounded-[18px] border border-white/8 bg-white/[0.03] p-3 text-sm leading-6 text-slate-300">
-                    <p className="font-medium text-white">{lead.pitch.serviceSuggestion}</p>
-                    <p className="mt-2">{lead.opportunityInsight}</p>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between gap-3">
-                    <label className="flex items-center gap-2 text-sm text-slate-300">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(lead.id)}
-                        onChange={() => toggleLead(lead.id)}
-                        className="h-4 w-4 rounded border-white/15 bg-slate-950"
-                      />
-                      Select
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedLead(lead)}
-                      className="glass-button rounded-full border border-white/8 px-4 py-2 text-[13px] text-white transition hover:bg-white/[0.05]"
-                    >
-                      View lead
-                    </button>
-                  </div>
-                </article>
+          <div className="results-workspace__controls">
+            <div className="results-workspace__view-toggle">
+              {(["table", "map"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setViewMode(mode)}
+                  className={viewMode === mode ? "is-active" : ""}
+                >
+                  {mode === "table" ? "Table view" : "Map view"}
+                </button>
               ))}
             </div>
 
-            <div className="results-table-shell mt-8 hidden md:block">
-              <div className="results-table">
+            <div className="results-workspace__filters">
+              <label className="relative min-w-0 xl:col-span-2">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search by business, address, issue, or opportunity"
+                  className="field-input rounded-[16px] border border-white/8 bg-slate-950/92 py-3 pl-11 pr-4 text-[14px] text-white"
+                />
+              </label>
+              <select
+                value={sortKey}
+                onChange={(event) => setSortKey(event.target.value as SortKey)}
+                className="field-input rounded-[16px] border border-white/8 bg-slate-950/92 px-4 text-[14px] text-white"
+              >
+                <option value="leadScore">Sort by score</option>
+                <option value="businessName">Sort by name</option>
+                <option value="reviewCount">Sort by reviews</option>
+              </select>
+              <select
+                value={filter}
+                onChange={(event) => setFilter(event.target.value)}
+                className="field-input rounded-[16px] border border-white/8 bg-slate-950/92 px-4 text-[14px] text-white"
+              >
+                <option value="all">All issues</option>
+                <option value="no-website">No website</option>
+                <option value="no-booking">No booking</option>
+                <option value="weak-seo">Weak SEO</option>
+                <option value="slow-site">Slow site</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="workspace-frame__body pt-0">
+          {viewMode === "map" ? (
+            <LeadMap
+              leads={filteredLeads}
+              activeLeadId={focusedLead?.id}
+              onSelectLead={(lead) => setFocusedLeadId(lead.id)}
+              onViewLead={(lead) => setSelectedLead(lead)}
+            />
+          ) : (
+            <>
+              <div className="grid gap-4 md:hidden">
+                {filteredLeads.map((lead) => (
+                  <article key={lead.id} className="subtle-panel rounded-[20px] p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="card-title text-white">{lead.businessName}</p>
+                        <p className="mt-1.5 text-sm leading-6 text-slate-300">{lead.opportunityType}</p>
+                      </div>
+                      <ScorePill score={lead.leadScore} />
+                    </div>
+                    <div className="mt-3.5 grid gap-1 text-sm leading-6 text-slate-300">
+                      <p>{lead.phone}</p>
+                      <p className="break-words text-slate-400">{lead.website}</p>
+                      <p className="text-slate-400">{lead.address}</p>
+                      <p className="meta-text text-slate-500">
+                        {lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews
+                      </p>
+                    </div>
+                    <div className="issue-chip-grid mt-3.5">
+                      {lead.issueLabels.map((issue) => (
+                        <IssueBadge key={issue} issue={issue} />
+                      ))}
+                    </div>
+                    <div className="subtle-panel mt-3.5 rounded-[18px] p-3 text-sm leading-6 text-slate-300">
+                      <p className="font-medium text-white">{lead.pitch.serviceSuggestion}</p>
+                      <p className="mt-2">{lead.opportunityInsight}</p>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <label className="flex items-center gap-2 text-sm text-slate-300">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(lead.id)}
+                          onChange={() => toggleLead(lead.id)}
+                          className="h-4 w-4 rounded border-white/15 bg-slate-950"
+                        />
+                        Select
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedLead(lead)}
+                        className="glass-button rounded-full border border-white/8 px-4 py-2 text-[13px] text-white transition hover:bg-white/[0.05]"
+                      >
+                        View lead
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <div className="table-surface hidden md:block">
+                <div className="results-table">
                 <div className="results-table__head">
                   <div />
                   <div>Business</div>
@@ -317,16 +318,17 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                     );
                   })}
                 </div>
+                </div>
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
 
-        {filteredLeads.length === 0 ? (
-          <div className="mt-6 rounded-[20px] border border-dashed border-white/10 px-6 py-12 text-center text-slate-400">
-            No leads yet. Try widening the market or adjusting filters.
-          </div>
-        ) : null}
+          {filteredLeads.length === 0 ? (
+            <div className="mt-6 rounded-[20px] border border-dashed border-white/10 px-6 py-12 text-center text-slate-400">
+              No leads yet. Try widening the market or adjusting filters.
+            </div>
+          ) : null}
+        </div>
       </section>
 
       {selectedLead ? <LeadDetails lead={selectedLead} onClose={() => setSelectedLead(null)} /> : null}

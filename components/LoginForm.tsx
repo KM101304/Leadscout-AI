@@ -110,7 +110,7 @@ export function LoginForm({ nextPath = "/dashboard" }: { nextPath?: string }) {
   };
 
   return (
-    <div className="auth-shell rounded-[28px] p-6 shadow-2xl shadow-black/30 md:p-8">
+    <div className="auth-shell rounded-[30px] p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="eyebrow">Secure Access</p>
@@ -229,7 +229,7 @@ export function LoginForm({ nextPath = "/dashboard" }: { nextPath?: string }) {
         </button>
       </form>
 
-      <div className="mt-8 app-card-grid-tight rounded-[24px] border border-white/10 bg-slate-950/40 p-5 text-sm text-slate-300">
+      <div className="subtle-panel mt-8 app-card-grid-tight rounded-[24px] p-5 text-sm text-slate-300">
         <p className="font-medium text-white">What happens after login</p>
         <p>You’ll land in the dashboard, stay signed in across refreshes, and protected pages will redirect back here if your session expires.</p>
         <p className="text-slate-400">

@@ -56,12 +56,13 @@ export default async function HomePage() {
   return (
     <main className="landing-stack pb-10 md:pb-14">
       <section className="shell pt-14 md:pt-24">
-        <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(480px,560px)] lg:items-start">
+        <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(480px,560px)] lg:items-center">
           <div className="max-w-3xl">
-            <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-6xl xl:text-7xl">
+            <Badge tone="info">Lead discovery for agencies and consultants</Badge>
+            <h1 className="mt-6 max-w-4xl font-heading text-4xl font-semibold tracking-tight text-white md:text-6xl xl:text-7xl">
               Find businesses that actually need your services.
             </h1>
-            <p className="mt-5 max-w-3xl text-[16px] text-slate-300 md:text-lg">
+            <p className="mt-5 max-w-3xl text-[16px] leading-8 text-slate-300 md:text-lg">
               AI scans local businesses and reveals digital weaknesses you can sell solutions for, from outdated sites
               and weak SEO to missing booking systems, chatbots, and automation gaps.
             </p>
@@ -88,8 +89,8 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="panel max-w-[560px] rounded-[24px] p-4 md:p-5 lg:justify-self-end">
-            <div className="rounded-[16px] border border-white/8 bg-slate-950/60 p-4">
+          <div className="workspace-frame max-w-[560px] lg:justify-self-end">
+            <div className="workspace-frame__header">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.35em] text-cyan-300/80">Live product preview</p>
@@ -97,20 +98,22 @@ export default async function HomePage() {
                 </div>
                 <Badge tone="warning">Demo scan</Badge>
               </div>
+            </div>
+            <div className="workspace-frame__body pt-0">
               <SearchForm initialLocation="Vancouver" initialNiche="dentists" compact />
               <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <div className="rounded-2xl border border-rose-400/15 bg-rose-400/8 p-4">
+                <div className="subtle-panel rounded-2xl p-4">
                   <p className="text-sm text-slate-300">Top opportunity</p>
                   <p className="mt-2 text-lg font-semibold text-white">No booking flow</p>
                   <p className="mt-2 text-sm text-slate-400">Most frequent weakness across this niche</p>
                 </div>
-                <div className="rounded-2xl border border-cyan-400/15 bg-cyan-400/8 p-4">
+                <div className="subtle-panel rounded-2xl p-4">
                   <p className="text-sm text-slate-300">Average lead score</p>
                   <div className="mt-2">
                     <ScorePill score={74} />
                   </div>
                 </div>
-                <div className="rounded-2xl border border-violet-400/15 bg-violet-400/8 p-4">
+                <div className="subtle-panel rounded-2xl p-4">
                   <p className="text-sm text-slate-300">Ready-made pitch</p>
                   <p className="mt-2 text-sm text-white">Website redesign + booking automation</p>
                 </div>
@@ -128,7 +131,7 @@ export default async function HomePage() {
         />
         <div className="landing-card-grid mt-8 md:grid-cols-3">
           {steps.map((step, index) => (
-            <article key={step.title} className="panel rounded-[2rem] p-6 md:p-7">
+            <article key={step.title} className="surface-primary rounded-[28px] p-6 md:p-7">
               <p className="text-sm text-cyan-300">0{index + 1}</p>
               <h2 className="mt-4 text-2xl font-semibold text-white">{step.title}</h2>
               <p className="mt-3 text-slate-300">{step.text}</p>
@@ -138,7 +141,7 @@ export default async function HomePage() {
       </section>
 
       <section className="shell">
-        <div className="panel grid-glow rounded-[2rem] p-8">
+        <div className="surface-primary grid-glow rounded-[32px] p-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <SectionHeading
               eyebrow="Product Preview"
@@ -147,9 +150,9 @@ export default async function HomePage() {
             />
           </div>
           <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-            <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/80 p-6">
+            <div className="subtle-panel rounded-[1.5rem] p-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="subtle-panel flex items-center justify-between rounded-2xl p-4">
                   <div>
                     <span className="font-medium text-white">Harbor Dental Studio</span>
                     <div className="mt-2 flex gap-2">
@@ -159,7 +162,7 @@ export default async function HomePage() {
                   </div>
                   <ScorePill score={86} />
                 </div>
-                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="subtle-panel flex items-center justify-between rounded-2xl p-4">
                   <div>
                     <span className="font-medium text-white">Atlas Construction</span>
                     <div className="mt-2 flex gap-2">
@@ -169,7 +172,7 @@ export default async function HomePage() {
                   </div>
                   <ScorePill score={68} />
                 </div>
-                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="subtle-panel flex items-center justify-between rounded-2xl p-4">
                   <div>
                     <span className="font-medium text-white">Vital Chiropractic</span>
                     <div className="mt-2 flex gap-2">
@@ -180,8 +183,8 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-sky-400/10 via-slate-950 to-violet-400/12 p-6">
-              <div className="rounded-[1.25rem] border border-white/10 bg-slate-950/70 p-5">
+            <div className="rounded-[1.5rem] border border-white/10 bg-gradient-to-br from-sky-400/10 via-slate-950 to-amber-200/8 p-6">
+              <div className="subtle-panel rounded-[1.25rem] p-5">
                 <p className="text-xs uppercase tracking-[0.35em] text-cyan-300/80">Lead detail</p>
                 <h3 className="mt-3 text-xl font-semibold text-white">Why this is a good lead</h3>
                 <p className="mt-3 text-sm text-slate-300">
@@ -192,7 +195,7 @@ export default async function HomePage() {
                   <Badge tone="danger">No booking</Badge>
                   <Badge tone="warning">Weak SEO</Badge>
                 </div>
-                <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="subtle-panel mt-5 rounded-2xl p-4">
                   <p className="text-sm font-medium text-white">Suggested service</p>
                   <p className="mt-2 text-sm text-slate-300">Website redesign + booking automation + AI follow-up</p>
                 </div>
@@ -213,7 +216,7 @@ export default async function HomePage() {
             const Icon = feature.icon;
 
             return (
-              <article key={feature.title} className="panel rounded-[1.75rem] p-6 md:p-7">
+              <article key={feature.title} className="surface-primary rounded-[1.75rem] p-6 md:p-7">
                 <div className="inline-flex rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
                   <Icon className="h-5 w-5" />
                 </div>
@@ -233,7 +236,7 @@ export default async function HomePage() {
         />
         <div className="landing-card-grid mt-8 md:grid-cols-3">
           {pricing.map((plan) => (
-            <article key={plan.name} className="panel rounded-[2rem] p-6 md:p-7">
+            <article key={plan.name} className="surface-primary rounded-[2rem] p-6 md:p-7">
               <Badge tone={plan.name === "Pro" ? "success" : "default"}>{plan.badge}</Badge>
               <h3 className="mt-5 text-xl font-semibold text-white">{plan.name}</h3>
               <p className="mt-4 text-4xl font-semibold text-white">{plan.price}</p>
@@ -244,7 +247,7 @@ export default async function HomePage() {
       </section>
 
       <section className="shell">
-        <div className="panel rounded-[2rem] px-8 py-12 text-center">
+        <div className="surface-primary rounded-[2rem] px-8 py-12 text-center">
           <div className="mx-auto inline-flex rounded-full border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
             <TableProperties className="h-5 w-5" />
           </div>

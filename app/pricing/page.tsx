@@ -10,7 +10,7 @@ export default async function PricingPage() {
       <SectionHeading
         eyebrow="Pricing"
         title="Pricing built around how serious your outbound workflow is"
-        description="The paid value should feel operational: faster qualification, better pitch prep, and cleaner team execution."
+        description="The value should feel operational: faster qualification, better pitch prep, and cleaner execution for solo operators through agency teams."
       />
 
       <div className="mt-8 md:mt-10">

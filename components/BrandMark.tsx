@@ -12,34 +12,41 @@ export function BrandMark({
       <span className="brand-mark">
         <svg viewBox="0 0 56 56" aria-hidden="true" className="h-7 w-7">
           <defs>
-            <linearGradient id="leadscout-brand-gradient" x1="6" y1="8" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#8BE9FD" />
-              <stop offset="0.55" stopColor="#38BDF8" />
-              <stop offset="1" stopColor="#FBBF24" />
+            <linearGradient id="leadscout-brand-gradient" x1="10" y1="9" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#79D2FF" />
+              <stop offset="0.62" stopColor="#4CB7FF" />
+              <stop offset="1" stopColor="#F5BF62" />
             </linearGradient>
           </defs>
-          <rect x="4" y="4" width="48" height="48" rx="16" fill="rgba(8,16,28,0.88)" stroke="rgba(139,233,253,0.22)" />
+          <rect x="4.5" y="4.5" width="47" height="47" rx="15.5" fill="rgba(8,16,28,0.9)" stroke="rgba(121,210,255,0.2)" />
           <path
-            d="M17 34.5V21.5C17 18.5 19.5 16 22.5 16H36"
+            d="M17 34V23C17 19.686 19.686 17 23 17H35"
             fill="none"
             stroke="url(#leadscout-brand-gradient)"
             strokeLinecap="round"
-            strokeWidth="4.25"
+            strokeWidth="4"
           />
           <path
-            d="M22 39.5H33.5C37.642 39.5 41 36.142 41 32V20"
+            d="M21.5 39H31.5C36.747 39 41 34.747 41 29.5V21"
             fill="none"
             stroke="rgba(236,243,255,0.92)"
             strokeLinecap="round"
-            strokeWidth="4.25"
+            strokeWidth="4"
           />
-          <circle cx="37.5" cy="18.5" r="4.5" fill="#FBBF24" />
+          <path
+            d="M30 27.5L36.5 21"
+            fill="none"
+            stroke="rgba(236,243,255,0.92)"
+            strokeLinecap="round"
+            strokeWidth="3.25"
+          />
+          <circle cx="38" cy="19.5" r="4.25" fill="#F5BF62" />
         </svg>
       </span>
       {!compact ? (
         <span className="grid gap-0.5 leading-none">
           <span className="font-heading text-[1.02rem] font-semibold tracking-[-0.03em] text-white">LeadScout</span>
-          <span className="text-[0.66rem] font-semibold uppercase tracking-[0.28em] text-cyan-200/72">Revenue Intel</span>
+          <span className="text-[0.66rem] font-semibold uppercase tracking-[0.28em] text-cyan-100/65">Signal Intelligence</span>
         </span>
       ) : null}
     </div>

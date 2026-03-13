@@ -19,13 +19,13 @@ export default async function LoginPage({
     <main className="shell py-10 md:py-16">
       <div className="app-page-stack lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(380px,0.8fr)] lg:items-center">
         <section className="space-y-6">
-          <Badge tone="success">Production access flow</Badge>
+          <Badge tone="success">Secure workspace access</Badge>
           <div className="space-y-4">
             <h2 className="font-heading text-4xl font-semibold leading-tight text-white md:text-6xl">
               Keep your prospecting workspace secure and usable.
             </h2>
             <p className="max-w-2xl text-base text-slate-300">
-              This login flow now uses real session handling, route protection, and persistent auth instead of placeholder account state.
+              LeadScout keeps auth, redirects, and session state clean so the product feels production-ready instead of stitched together.
             </p>
           </div>
           <div className="app-card-grid sm:grid-cols-3">

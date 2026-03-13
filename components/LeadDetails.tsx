@@ -19,10 +19,10 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
   return (
     <aside className="slide-in-panel fixed inset-0 z-50 overflow-y-auto bg-slate-950/88 p-3 backdrop-blur-xl md:inset-y-0 md:left-auto md:right-0 md:max-w-2xl md:p-6">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="relative ml-auto max-w-[760px] rounded-[24px] border border-white/8 bg-slate-950/95 p-4 md:p-6">
+      <div className="relative ml-auto max-w-[760px] rounded-[28px] border border-white/8 bg-slate-950/95 p-4 shadow-2xl shadow-black/40 md:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="eyebrow">Lead detail</p>
+            <p className="workspace-kicker">Lead detail</p>
             <h2 className="section-title mt-2 text-white">{lead.businessName}</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               <ScorePill score={lead.leadScore} />
@@ -39,7 +39,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
         </div>
 
         <div className="mt-6 app-card-grid md:mt-8">
-          <section className="surface-secondary rounded-[16px] section-block">
+          <section className="subtle-panel rounded-[18px] section-block">
             <h3 className="card-title text-white">Business overview</h3>
             <div className="mt-4 grid gap-4 text-[14px] text-slate-300 md:grid-cols-2">
               <p>{lead.phone}</p>
@@ -52,7 +52,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
             </div>
           </section>
 
-          <section className="surface-secondary rounded-[16px] section-block">
+          <section className="subtle-panel rounded-[18px] section-block">
             <h3 className="card-title flex items-center gap-2 text-white">
               <CircleAlert className="h-5 w-5 text-amber-300" />
               Detected digital issues
@@ -65,7 +65,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
             <p className="mt-4 text-[14px] text-slate-300">{lead.opportunityInsight}</p>
           </section>
 
-          <section className="surface-secondary rounded-[16px] section-block">
+          <section className="subtle-panel rounded-[18px] section-block">
             <h3 className="card-title flex items-center gap-2 text-white">
               <WandSparkles className="h-5 w-5 text-cyan-300" />
               AI pitch assistant
@@ -87,7 +87,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
             </div>
           </section>
 
-          <section className="surface-secondary rounded-[16px] section-block">
+          <section className="subtle-panel rounded-[18px] section-block">
             <h3 className="card-title text-white">Status tracker</h3>
             <div className="mt-4 flex flex-wrap gap-2">
               {statuses.map((option) => (
@@ -107,7 +107,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
             </div>
           </section>
 
-          <section className="surface-secondary rounded-[16px] section-block">
+          <section className="subtle-panel rounded-[18px] section-block">
             <h3 className="card-title flex items-center gap-2 text-white">
               <StickyNote className="h-5 w-5 text-violet-300" />
               Notes

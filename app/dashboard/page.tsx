@@ -17,7 +17,7 @@ export default async function DashboardPage() {
         <SearchForm />
 
         <section className="dashboard-mobile-priority-grid">
-          <section className="surface-primary rounded-[24px] section-block">
+          <section className="surface-primary rounded-[28px] section-block">
             <div className="flex items-center gap-3">
               <div className="inline-flex rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
                 <SearchCheck className="h-5 w-5" />
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
             </div>
           </section>
 
-          <section className="surface-primary rounded-[24px] section-block">
+          <section className="surface-primary rounded-[28px] section-block">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Workspace state</p>

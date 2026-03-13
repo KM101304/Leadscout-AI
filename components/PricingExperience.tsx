@@ -14,7 +14,7 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
           return (
             <article
               key={plan.tier}
-              className={`panel rounded-[2rem] p-6 md:p-7 ${isFeatured ? "ring-1 ring-cyan-400/30" : ""}`}
+              className={`surface-primary rounded-[2rem] p-6 md:p-7 ${isFeatured ? "ring-1 ring-cyan-400/30" : ""}`}
             >
               <div className="flex items-center justify-between gap-3">
                 <Badge tone={isCurrent ? "success" : isFeatured ? "warning" : "default"}>
@@ -25,7 +25,7 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
               <h2 className="mt-5 text-2xl font-semibold text-white">{plan.name}</h2>
               <p className="mt-3 text-5xl font-semibold text-white">{plan.price}</p>
               <p className="mt-4 text-slate-300">{plan.summary}</p>
-              <p className="mt-4 rounded-[20px] border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-200">{plan.headline}</p>
+              <p className="subtle-panel mt-4 rounded-[20px] p-4 text-sm text-slate-200">{plan.headline}</p>
 
               <div className="mt-6">
                 <p className="text-xs uppercase tracking-[0.35em] text-cyan-300/80">What you feel</p>
@@ -68,12 +68,12 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
         })}
       </div>
 
-      <div className="panel rounded-[2rem] p-6 md:p-7">
+      <div className="surface-primary rounded-[2rem] p-6 md:p-7">
         <div className="flex items-center gap-3">
           <LockKeyhole className="h-5 w-5 text-cyan-300" />
           <h3 className="font-heading text-xl font-semibold text-white">Feature comparison</h3>
         </div>
-        <div className="mt-6 overflow-x-auto">
+        <div className="table-surface mt-6 overflow-x-auto">
           <table className="min-w-full text-left text-sm">
             <thead className="text-slate-400">
               <tr className="border-b border-white/10">
