@@ -914,7 +914,7 @@ textarea::placeholder {
 
 @media (min-width: 1280px) {
   .dashboard-shell {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 228px minmax(0, 1fr);
     align-items: start;
   }
 
