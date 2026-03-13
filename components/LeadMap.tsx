@@ -31,8 +31,13 @@ export function LeadMap({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
   const markersRef = useRef<MapboxMarker[]>([]);
+  const onSelectLeadRef = useRef(onSelectLead);
   const validLeads = useMemo(() => leads.filter(hasCoordinates), [leads]);
   const [focusedLead, setFocusedLead] = useState<Lead | null>(validLeads[0] ?? leads[0] ?? null);
+
+  useEffect(() => {
+    onSelectLeadRef.current = onSelectLead;
+  }, [onSelectLead]);
 
   useEffect(() => {
     if (!validLeads.length && leads.length) {
@@ -94,7 +99,7 @@ export function LeadMap({
         markerNode.setAttribute("aria-label", `${lead.businessName} marker`);
         markerNode.onclick = () => {
           setFocusedLead(lead);
-          onSelectLead?.(lead);
+          onSelectLeadRef.current?.(lead);
         };
 
         const marker = new mapboxgl.Marker({ element: markerNode, anchor: "center" })
@@ -120,7 +125,7 @@ export function LeadMap({
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
     };
-  }, [onSelectLead, token, validLeads]);
+  }, [token, validLeads]);
 
   useEffect(() => {
     return () => {
@@ -178,7 +183,7 @@ export function LeadMap({
                   }}
                   onClick={() => {
                     setFocusedLead(lead);
-                    onSelectLead?.(lead);
+                    onSelectLeadRef.current?.(lead);
                   }}
                 >
                   <span>{lead.businessName}</span>
