@@ -31,7 +31,7 @@ export async function AppShell({
   return (
     <main className="shell pb-[calc(92px+env(safe-area-inset-bottom,0px))] pt-4 md:py-10 xl:pb-10">
       <div className="dashboard-shell">
-        <aside className="panel content-stack hidden rounded-[28px] p-5 xl:sticky xl:top-24 xl:grid xl:self-start">
+        <aside className="panel content-stack hidden rounded-[28px] p-6 xl:sticky xl:top-24 xl:grid xl:self-start">
           <div className="rounded-[22px] border border-white/8 bg-white/[0.03] px-4 py-4">
             <BrandMark compact />
           </div>
@@ -64,7 +64,7 @@ export async function AppShell({
               );
             })}
           </nav>
-          <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+          <div className="rounded-[20px] border border-white/8 bg-white/[0.03] section-subtle">
             <p className="meta-text text-slate-400">Signed in as</p>
             <p className="mt-2 truncate text-sm font-medium text-white">{viewer.user?.email ?? "Unknown user"}</p>
             <LogoutButton className="glass-button mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white transition hover:bg-white/10" />

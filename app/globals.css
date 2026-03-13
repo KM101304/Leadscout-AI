@@ -438,6 +438,10 @@ textarea::placeholder {
   box-shadow: var(--shadow-soft);
 }
 
+.results-table {
+  table-layout: fixed;
+}
+
 .results-table thead {
   background: rgba(255, 255, 255, 0.03);
 }
@@ -457,6 +461,7 @@ textarea::placeholder {
   vertical-align: top;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   line-height: 1.55;
+  word-break: break-word;
 }
 
 .results-table tbody tr {
@@ -630,6 +635,43 @@ textarea::placeholder {
   box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.18);
 }
 
+.mobile-tab-nav-spacer {
+  height: calc(110px + env(safe-area-inset-bottom, 0px));
+}
+
+.landing-stack {
+  display: grid;
+  gap: 72px;
+}
+
+.landing-card-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.app-page-stack {
+  display: grid;
+  gap: 28px;
+}
+
+.app-card-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.app-card-grid-tight {
+  display: grid;
+  gap: 18px;
+}
+
+.section-block {
+  padding: 24px;
+}
+
+.section-subtle {
+  padding: 18px;
+}
+
 @media (max-width: 767px) {
   .shell {
     padding: 0 16px;
@@ -651,6 +693,34 @@ textarea::placeholder {
 
   .dashboard-shell {
     gap: 20px;
+  }
+
+  .landing-stack {
+    gap: 56px;
+  }
+
+  .landing-card-grid {
+    gap: 18px;
+  }
+
+  .app-page-stack {
+    gap: 20px;
+  }
+
+  .app-card-grid {
+    gap: 18px;
+  }
+
+  .app-card-grid-tight {
+    gap: 14px;
+  }
+
+  .section-block {
+    padding: 20px;
+  }
+
+  .section-subtle {
+    padding: 16px;
   }
 
   .top-nav__inner {

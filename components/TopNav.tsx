@@ -67,7 +67,12 @@ export async function TopNav() {
         </div>
         </div>
       </header>
-      {isSignedIn ? <MobileTabNav /> : null}
+      {isSignedIn ? (
+        <>
+          <MobileTabNav />
+          <div className="mobile-tab-nav-spacer lg:hidden" aria-hidden="true" />
+        </>
+      ) : null}
     </>
   );
 }

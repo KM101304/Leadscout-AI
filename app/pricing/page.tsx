@@ -13,7 +13,7 @@ export default async function PricingPage() {
         description="The paid value should feel operational: faster qualification, better pitch prep, and cleaner team execution."
       />
 
-      <div className="mt-10">
+      <div className="mt-8 md:mt-10">
         <PricingExperience currentTier={viewer.subscription.tier} />
       </div>
     </main>

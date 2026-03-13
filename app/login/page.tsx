@@ -17,7 +17,7 @@ export default async function LoginPage({
 
   return (
     <main className="shell py-10 md:py-16">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(380px,0.8fr)] lg:items-center">
+      <div className="app-page-stack lg:grid lg:grid-cols-[minmax(0,0.9fr)_minmax(380px,0.8fr)] lg:items-center">
         <section className="space-y-6">
           <Badge tone="success">Production access flow</Badge>
           <div className="space-y-4">
@@ -28,16 +28,16 @@ export default async function LoginPage({
               This login flow now uses real session handling, route protection, and persistent auth instead of placeholder account state.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="feature-tile p-5">
+          <div className="app-card-grid sm:grid-cols-3">
+            <div className="feature-tile section-block">
               <p className="font-medium text-white">Session cookies</p>
               <p className="mt-2 text-sm text-slate-300">Protected pages stay protected and refresh cleanly.</p>
             </div>
-            <div className="feature-tile p-5">
+            <div className="feature-tile section-block">
               <p className="font-medium text-white">Useful errors</p>
               <p className="mt-2 text-sm text-slate-300">Credential issues surface clearly instead of failing silently.</p>
             </div>
-            <div className="feature-tile p-5">
+            <div className="feature-tile section-block">
               <p className="font-medium text-white">Clean redirect flow</p>
               <p className="mt-2 text-sm text-slate-300">Successful auth sends users back into the app immediately.</p>
             </div>

@@ -54,8 +54,8 @@ export default async function HomePage() {
   const primaryLabel = viewer.user ? "Open dashboard" : "Login to start scanning";
 
   return (
-    <main>
-      <section className="shell py-14 md:py-24">
+    <main className="landing-stack pb-10 md:pb-14">
+      <section className="shell pt-14 md:pt-24">
         <div className="grid gap-8 md:gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <Badge tone="success">Outbound prospecting for agencies, consultants, and AI operators</Badge>
@@ -121,15 +121,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-20">
+      <section className="shell">
         <SectionHeading
           eyebrow="How It Works"
           title="Lead discovery built around speed, clarity, and action"
           description="From the first search to the final export, the workflow is optimized for fast outbound execution."
         />
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="landing-card-grid mt-8 md:grid-cols-3">
           {steps.map((step, index) => (
-            <article key={step.title} className="panel rounded-[2rem] p-6">
+            <article key={step.title} className="panel rounded-[2rem] p-6 md:p-7">
               <p className="text-sm text-cyan-300">0{index + 1}</p>
               <h2 className="mt-4 text-2xl font-semibold text-white">{step.title}</h2>
               <p className="mt-3 text-slate-300">{step.text}</p>
@@ -138,7 +138,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-20">
+      <section className="shell">
         <div className="panel grid-glow rounded-[2rem] p-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <SectionHeading
@@ -203,18 +203,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-20">
+      <section className="shell">
         <SectionHeading
           eyebrow="Features"
           title="Everything needed to discover, qualify, pitch, and export"
           description="Built for data-heavy prospecting without the clutter."
         />
-        <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="landing-card-grid mt-8 md:grid-cols-2 xl:grid-cols-4">
           {featureCards.map((feature) => {
             const Icon = feature.icon;
 
             return (
-              <article key={feature.title} className="panel rounded-[1.75rem] p-6">
+              <article key={feature.title} className="panel rounded-[1.75rem] p-6 md:p-7">
                 <div className="inline-flex rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
                   <Icon className="h-5 w-5" />
                 </div>
@@ -226,15 +226,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-20" id="pricing">
+      <section className="shell" id="pricing">
         <SectionHeading
           eyebrow="Pricing"
           title="Start free, upgrade when the pipeline gets serious"
           description="A clear path from solo prospecting to agency-scale outbound operations."
         />
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="landing-card-grid mt-8 md:grid-cols-3">
           {pricing.map((plan) => (
-            <article key={plan.name} className="panel rounded-[2rem] p-6">
+            <article key={plan.name} className="panel rounded-[2rem] p-6 md:p-7">
               <Badge tone={plan.name === "Pro" ? "success" : "default"}>{plan.badge}</Badge>
               <h3 className="mt-5 text-xl font-semibold text-white">{plan.name}</h3>
               <p className="mt-4 text-4xl font-semibold text-white">{plan.price}</p>
@@ -244,7 +244,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="shell py-20">
+      <section className="shell">
         <div className="panel rounded-[2rem] px-8 py-12 text-center">
           <div className="mx-auto inline-flex rounded-full border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
             <TableProperties className="h-5 w-5" />

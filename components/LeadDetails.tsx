@@ -38,8 +38,8 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
         </button>
       </div>
 
-      <div className="mt-6 grid gap-4 md:mt-8 md:gap-6">
-        <section className="surface-secondary rounded-[16px] p-6">
+      <div className="mt-6 app-card-grid md:mt-8">
+        <section className="surface-secondary rounded-[16px] section-block">
           <h3 className="card-title text-white">Business overview</h3>
           <div className="mt-4 grid gap-4 text-[14px] text-slate-300 md:grid-cols-2">
             <p>{lead.phone}</p>
@@ -52,7 +52,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
           </div>
         </section>
 
-        <section className="surface-secondary rounded-[16px] p-6">
+        <section className="surface-secondary rounded-[16px] section-block">
           <h3 className="card-title flex items-center gap-2 text-white">
             <CircleAlert className="h-5 w-5 text-amber-300" />
             Detected digital issues
@@ -65,7 +65,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
           <p className="mt-4 text-[14px] text-slate-300">{lead.opportunityInsight}</p>
         </section>
 
-        <section className="surface-secondary rounded-[16px] p-6">
+        <section className="surface-secondary rounded-[16px] section-block">
           <h3 className="card-title flex items-center gap-2 text-white">
             <WandSparkles className="h-5 w-5 text-cyan-300" />
             AI pitch assistant
@@ -84,7 +84,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
           </div>
         </section>
 
-        <section className="surface-secondary rounded-[16px] p-6">
+        <section className="surface-secondary rounded-[16px] section-block">
           <h3 className="card-title text-white">Status tracker</h3>
           <div className="mt-4 flex flex-wrap gap-2">
             {statuses.map((option) => (
@@ -104,7 +104,7 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
           </div>
         </section>
 
-        <section className="surface-secondary rounded-[16px] p-6">
+        <section className="surface-secondary rounded-[16px] section-block">
           <h3 className="card-title flex items-center gap-2 text-white">
             <StickyNote className="h-5 w-5 text-violet-300" />
             Notes

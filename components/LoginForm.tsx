@@ -151,7 +151,7 @@ export function LoginForm({ nextPath = "/dashboard" }: { nextPath?: string }) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
+      <form onSubmit={handleSubmit} className="mt-8 app-card-grid">
         <label className="grid gap-2">
           <span className="field-label">Email</span>
           <div className="field-shell">
@@ -229,7 +229,7 @@ export function LoginForm({ nextPath = "/dashboard" }: { nextPath?: string }) {
         </button>
       </form>
 
-      <div className="mt-8 grid gap-4 rounded-[24px] border border-white/10 bg-slate-950/40 p-5 text-sm text-slate-300">
+      <div className="mt-8 app-card-grid-tight rounded-[24px] border border-white/10 bg-slate-950/40 p-5 text-sm text-slate-300">
         <p className="font-medium text-white">What happens after login</p>
         <p>You’ll land in the dashboard, stay signed in across refreshes, and protected pages will redirect back here if your session expires.</p>
         <p className="text-slate-400">

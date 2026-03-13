@@ -61,18 +61,18 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           </section>
 
           <aside className="results-insights-column">
-            <section className="surface-primary rounded-[24px] p-6">
+            <section className="surface-primary rounded-[24px] section-block">
               <p className="eyebrow">Scan summary</p>
-              <div className="mt-5 grid gap-4">
-                <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+              <div className="mt-5 app-card-grid-tight">
+                <div className="rounded-[18px] border border-white/8 bg-white/[0.03] section-subtle">
                   <p className="meta-text text-slate-400">Most common issue</p>
                   <p className="mt-2 text-sm leading-6 text-white">{session.summary.topIssueLabels[0] ?? "No issues detected"}</p>
                 </div>
-                <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+                <div className="rounded-[18px] border border-white/8 bg-white/[0.03] section-subtle">
                   <p className="meta-text text-slate-400">Best immediate angle</p>
                   <p className="mt-2 text-sm leading-6 text-white">{session.summary.recommendation}</p>
                 </div>
-                <div className="rounded-[18px] border border-white/8 bg-white/[0.03] p-4">
+                <div className="rounded-[18px] border border-white/8 bg-white/[0.03] section-subtle">
                   <p className="meta-text text-slate-400">Top niche fit</p>
                   <p className="mt-2 text-sm leading-6 text-white">{session.query.niche}</p>
                 </div>
@@ -90,7 +90,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
                 </div>
               </div>
             </section>
-            <section className="surface-primary rounded-[24px] p-6">
+            <section className="surface-primary rounded-[24px] section-block">
               <p className="eyebrow">Pitch alignment</p>
               <div className="mt-4 divide-y divide-white/6">
                 <div className="grid gap-2 py-4 first:pt-0">

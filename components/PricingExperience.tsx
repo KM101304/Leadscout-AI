@@ -5,8 +5,8 @@ import { Check, LockKeyhole, Sparkles, Users } from "lucide-react";
 
 export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
   return (
-    <div className="grid gap-8">
-      <div className="grid gap-6 xl:grid-cols-3">
+    <div className="grid gap-8 md:gap-10">
+      <div className="landing-card-grid xl:grid-cols-3">
         {planDefinitions.map((plan) => {
           const isCurrent = plan.tier === currentTier;
           const isFeatured = plan.tier === "pro";
@@ -14,7 +14,7 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
           return (
             <article
               key={plan.tier}
-              className={`panel rounded-[2rem] p-6 ${isFeatured ? "ring-1 ring-cyan-400/30" : ""}`}
+              className={`panel rounded-[2rem] p-6 md:p-7 ${isFeatured ? "ring-1 ring-cyan-400/30" : ""}`}
             >
               <div className="flex items-center justify-between gap-3">
                 <Badge tone={isCurrent ? "success" : isFeatured ? "warning" : "default"}>
@@ -68,7 +68,7 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
         })}
       </div>
 
-      <div className="panel rounded-[2rem] p-6">
+      <div className="panel rounded-[2rem] p-6 md:p-7">
         <div className="flex items-center gap-3">
           <LockKeyhole className="h-5 w-5 text-cyan-300" />
           <h3 className="font-heading text-xl font-semibold text-white">Feature comparison</h3>

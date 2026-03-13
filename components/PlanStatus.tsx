@@ -15,7 +15,7 @@ export function PlanStatus({
   const usagePct = Math.min(100, Math.round((leadsUsed / Math.max(leadsLimit, 1)) * 100));
 
   return (
-    <div className="rounded-[20px] border border-cyan-400/12 bg-cyan-400/8 p-6">
+    <div className="rounded-[20px] border border-cyan-400/12 bg-cyan-400/8 p-6 md:p-7">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="eyebrow">Plan status</p>

@@ -12,11 +12,11 @@ export default async function DashboardPage() {
       subtitle="Run a real scan from one query and keep every downstream insight aligned to that search."
       activeNav="dashboard"
     >
-      <div className="grid gap-5 md:gap-8">
+      <div className="app-page-stack">
         <SearchForm />
 
         <section className="dashboard-mobile-priority-grid">
-          <section className="surface-primary rounded-[24px] p-5 md:p-6">
+          <section className="surface-primary rounded-[24px] section-block">
             <div className="flex items-center gap-3">
               <div className="inline-flex rounded-2xl border border-cyan-400/15 bg-cyan-400/10 p-3 text-cyan-200">
                 <SearchCheck className="h-5 w-5" />
@@ -26,13 +26,13 @@ export default async function DashboardPage() {
                 <h2 className="section-title mt-2 text-white">Start with a real market query</h2>
               </div>
             </div>
-            <div className="mt-4 grid gap-3 text-sm leading-6 text-slate-300">
+            <div className="mt-4 app-card-grid-tight text-sm leading-6 text-slate-300">
               <p>Enter a niche and location above to create a single scan session.</p>
               <p>The results, summaries, issue tags, recommendations, and pitch will all come from that exact request.</p>
             </div>
           </section>
 
-          <section className="surface-primary rounded-[24px] p-5 md:p-6">
+          <section className="surface-primary rounded-[24px] section-block">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Workspace state</p>
