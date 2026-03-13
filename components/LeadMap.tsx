@@ -19,11 +19,13 @@ function hasCoordinates(lead: Lead) {
 export function LeadMap({
   leads,
   activeLeadId,
-  onSelectLead
+  onSelectLead,
+  onViewLead
 }: {
   leads: Lead[];
   activeLeadId?: string;
   onSelectLead?: (lead: Lead) => void;
+  onViewLead?: (lead: Lead) => void;
 }) {
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -241,6 +243,16 @@ export function LeadMap({
                 <span>{focusedLead.pitch.serviceSuggestion}</span>
               </div>
             </div>
+
+            {onViewLead ? (
+              <button
+                type="button"
+                onClick={() => onViewLead(focusedLead)}
+                className="glass-button inline-flex h-[46px] items-center justify-center rounded-full border border-white/8 px-5 text-sm font-semibold text-white transition hover:bg-white/[0.05]"
+              >
+                Open full lead detail
+              </button>
+            ) : null}
           </div>
         ) : (
           <div className="grid h-full place-items-center rounded-[20px] border border-dashed border-white/10 px-6 py-12 text-center text-slate-400">

@@ -72,7 +72,7 @@ button {
 
 .shell {
   margin: 0 auto;
-  max-width: 1660px;
+  max-width: 1560px;
   padding: 0 24px;
 }
 
@@ -806,7 +806,7 @@ textarea::placeholder {
 
 @media (min-width: 1280px) {
   .dashboard-shell {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 228px minmax(0, 1fr);
     align-items: start;
   }
 

@@ -119,8 +119,7 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
         {viewMode === "map" ? (
           <LeadMap
             leads={filteredLeads}
-            activeLeadId={selectedLead?.id}
-            onSelectLead={(lead) => setSelectedLead(lead)}
+            onViewLead={(lead) => setSelectedLead(lead)}
           />
         ) : (
           <>
@@ -136,15 +135,20 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                   </div>
                   <div className="mt-3.5 grid gap-1 text-sm leading-6 text-slate-300">
                     <p>{lead.phone}</p>
+                    <p className="break-words text-slate-400">{lead.website}</p>
                     <p className="text-slate-400">{lead.address}</p>
                     <p className="meta-text text-slate-500">
                       {lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews
                     </p>
                   </div>
                   <div className="issue-chip-grid mt-3.5">
-                    {lead.issueLabels.slice(0, 3).map((issue) => (
+                    {lead.issueLabels.map((issue) => (
                       <IssueBadge key={issue} issue={issue} />
                     ))}
+                  </div>
+                  <div className="mt-3.5 rounded-[18px] border border-white/8 bg-white/[0.03] p-3 text-sm leading-6 text-slate-300">
+                    <p className="font-medium text-white">{lead.pitch.serviceSuggestion}</p>
+                    <p className="mt-2">{lead.opportunityInsight}</p>
                   </div>
                   <div className="mt-4 flex items-center justify-between gap-3">
                     <label className="flex items-center gap-2 text-sm text-slate-300">
@@ -170,28 +174,26 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
 
             <div className="results-table-shell mt-8 hidden md:block">
               <div className="overflow-x-auto">
-                <table className="results-table min-w-full text-left text-sm">
+                <table className="results-table min-w-[1580px] text-left text-sm">
                   <colgroup>
                     <col style={{ width: "44px" }} />
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "12%" }} />
-                    <col style={{ width: "15%" }} />
                     <col style={{ width: "18%" }} />
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "15%" }} />
+                    <col style={{ width: "24%" }} />
+                    <col style={{ width: "8%" }} />
                     <col style={{ width: "14%" }} />
-                    <col style={{ width: "110px" }} />
+                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "16%" }} />
+                    <col style={{ width: "148px" }} />
                   </colgroup>
                   <thead>
                     <tr>
                       <th />
                       <th>Business</th>
-                      <th>Phone</th>
-                      <th>Website</th>
-                      <th>Address</th>
+                      <th>Contact and address</th>
                       <th>Lead score</th>
                       <th>Issue tags</th>
-                      <th>Opportunity</th>
+                      <th>Opportunity and recommendation</th>
+                      <th>Pitch preview</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -212,27 +214,44 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                             <p className="text-[12px] text-slate-500">
                               {lead.googleRating.toFixed(1)} stars · {lead.reviewCount} reviews
                             </p>
+                            <p className="text-[12px] uppercase tracking-[0.12em] text-cyan-300/75">{lead.niche}</p>
                           </div>
                         </td>
-                        <td className="text-slate-200">{lead.phone}</td>
-                        <td className="break-words text-slate-400">{lead.website}</td>
-                        <td className="text-slate-400">{lead.address}</td>
                         <td>
-                          <ScorePill score={lead.leadScore} />
+                          <div className="grid gap-2 text-slate-300">
+                            <p className="text-slate-200">{lead.phone}</p>
+                            <p className="break-words text-slate-400">{lead.website}</p>
+                            <p className="text-slate-400">{lead.address}</p>
+                          </div>
                         </td>
                         <td>
-                          <div className="flex max-w-[240px] flex-wrap gap-2">
-                            {lead.issueLabels.slice(0, 3).map((issue) => (
+                          <div className="grid gap-2">
+                            <ScorePill score={lead.leadScore} />
+                            <p className="text-[12px] text-slate-500">{lead.location}</p>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="flex flex-wrap gap-2">
+                            {lead.issueLabels.map((issue) => (
                               <IssueBadge key={issue} issue={issue} />
                             ))}
                           </div>
                         </td>
-                        <td className="text-slate-200">{lead.opportunityType}</td>
+                        <td>
+                          <div className="grid gap-2">
+                            <p className="font-medium text-white">{lead.opportunityType}</p>
+                            <p className="text-slate-300">{lead.pitch.serviceSuggestion}</p>
+                            <p className="text-[13px] leading-6 text-slate-400">{lead.opportunityInsight}</p>
+                          </div>
+                        </td>
+                        <td>
+                          <p className="text-[13px] leading-6 text-slate-300">{lead.pitch.emailPitch}</p>
+                        </td>
                         <td>
                           <button
                             type="button"
                             onClick={() => setSelectedLead(lead)}
-                            className="glass-button rounded-full border border-white/8 px-4 py-2 text-sm text-white transition hover:bg-white/[0.05]"
+                            className="glass-button whitespace-nowrap rounded-full border border-white/8 px-4 py-2 text-sm text-white transition hover:bg-white/[0.05]"
                           >
                             View lead
                           </button>

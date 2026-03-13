@@ -56,10 +56,10 @@ export default async function HomePage() {
   return (
     <main className="landing-stack pb-10 md:pb-14">
       <section className="shell pt-14 md:pt-24">
-        <div className="grid gap-8 md:gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
+        <div className="grid gap-10 md:gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(480px,560px)] lg:items-start">
+          <div className="max-w-3xl">
             <Badge tone="success">Outbound prospecting for agencies, consultants, and AI operators</Badge>
-            <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-7xl">
+            <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-6xl xl:text-7xl">
               Find businesses that actually need your services.
             </h1>
             <p className="mt-5 max-w-3xl text-[16px] text-slate-300 md:text-lg">
@@ -89,7 +89,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="panel rounded-[24px] p-4 md:p-5">
+          <div className="panel max-w-[560px] rounded-[24px] p-4 md:p-5 lg:justify-self-end">
             <div className="rounded-[16px] border border-white/8 bg-slate-950/60 p-4">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <div>
