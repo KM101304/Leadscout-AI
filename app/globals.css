@@ -525,6 +525,28 @@ select:focus-visible {
   color: white;
 }
 
+select.field-input {
+  appearance: none;
+  -webkit-appearance: none;
+  color-scheme: dark;
+  background-color: rgba(7, 13, 24, 0.92);
+  background-image:
+    linear-gradient(45deg, transparent 50%, #d6e4f5 50%),
+    linear-gradient(135deg, #d6e4f5 50%, transparent 50%);
+  background-position:
+    calc(100% - 22px) calc(50% - 3px),
+    calc(100% - 16px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 40px;
+}
+
+select.field-input option,
+select.field-input optgroup {
+  background: #0b1627;
+  color: #f3f7fd;
+}
+
 .field-input::placeholder,
 textarea::placeholder {
   color: #64748b;
@@ -560,6 +582,7 @@ textarea::placeholder {
   display: grid;
   gap: 24px;
   align-items: start;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .results-rail {
@@ -698,6 +721,7 @@ textarea::placeholder {
 .results-row__details {
   display: grid;
   gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
   padding: 0 18px 18px 62px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0));
 }
@@ -1060,13 +1084,13 @@ textarea::placeholder {
 
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1600px) {
   .results-row__details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1700px) {
+@media (min-width: 2100px) {
   .results-layout {
     grid-template-columns: minmax(0, 1.92fr) minmax(280px, 0.42fr);
   }
