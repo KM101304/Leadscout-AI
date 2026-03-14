@@ -76,7 +76,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             <LeadTable leads={session.leads} />
 
             <aside className="results-rail">
-              <section className="surface-primary rounded-[26px] section-block">
+              <section className="surface-secondary rounded-[26px] section-block">
                 <p className="eyebrow">Export manager</p>
                 <p className="mt-3 text-[14px] leading-6 text-slate-300">
                   Download the full list or export selected leads from the same scan session.
@@ -88,7 +88,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
                   <ExportButton leads={session.leads.slice(0, 10)} filename="leadscout-top-10.csv" />
                 </div>
               </section>
-              <section className="surface-primary rounded-[26px] section-block">
+              <section className="surface-secondary rounded-[26px] section-block">
                 <p className="eyebrow">Pitch alignment</p>
                 <div className="mt-4 divide-y divide-white/6">
                   <div className="grid gap-2 py-4 first:pt-0">

@@ -247,8 +247,10 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
                               <div className="results-row__cell">
                                 <div className="grid gap-1.5">
                                   <p className="font-medium text-white">{lead.opportunityType}</p>
-                                  <p className="text-sm leading-6 text-slate-300">{lead.pitch.serviceSuggestion}</p>
-                                  <p className="line-clamp-2 text-[13px] leading-6 text-slate-500">{lead.pitch.emailPitch}</p>
+                                  <p className="results-row__summary-preview text-sm text-slate-300">{lead.pitch.serviceSuggestion}</p>
+                                  <p className="results-row__summary-preview results-row__summary-preview--secondary text-[13px] text-slate-500">
+                                    {lead.opportunityInsight}
+                                  </p>
                                 </div>
                               </div>
 
@@ -311,7 +313,10 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
 
                                 <div className="results-row__detail-card">
                                   <p className="meta-text text-slate-400">Pitch preview</p>
-                                  <p className="mt-3 text-sm leading-6 text-slate-300">{lead.pitch.emailPitch}</p>
+                                  <div className="mt-3 grid gap-3 text-sm leading-6 text-slate-300">
+                                    <p>{lead.pitch.emailPitch}</p>
+                                    <p className="text-slate-100">{lead.pitch.coldCallOpener}</p>
+                                  </div>
                                 </div>
                               </div>
                             ) : null}
