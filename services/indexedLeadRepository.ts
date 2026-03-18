@@ -161,25 +161,14 @@ export async function upsertIndexedLeads(leads: IndexedLeadRecord[]) {
 export async function logUsage(input: Omit<UsageLogRecord, "id" | "createdAt">) {
   if (hasDatabase()) {
     try {
-      const db = getDb();
-      await db.query(
-        `insert into scan_usage_logs (user_id, mode, tier, query_key, estimated_cost_usd, lead_count)
-         values ($1, $2, $3, $4, $5, $6)`,
-        [input.userId, input.mode, input.tier, input.queryKey, input.estimatedCostUsd, input.leadCount]
-      );
+      await insertUsageLog(input);
       return;
     } catch (error) {
       console.warn("[scan_usage_logs] Falling back to local store for logUsage.", error);
     }
   }
 
-  const store = await readStore();
-  store.usageLogs.push({
-    ...input,
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
-    createdAt: new Date().toISOString()
-  });
-  await writeStore(store);
+  await appendUsageLogToStore(input);
 }
 
 export async function countMonthlyUsage(userId: string | null, mode: ScanMode) {
@@ -222,6 +211,9 @@ export async function countMonthlyLeadUsage(userId: string | null) {
       );
       return Number(result.rows[0]?.lead_count ?? 0);
     } catch (error) {
+      if (isMissingColumnError(error, "lead_count")) {
+        return 0;
+      }
       console.warn("[scan_usage_logs] Falling back to local store for countMonthlyLeadUsage.", error);
     }
   }
@@ -235,63 +227,12 @@ export async function countMonthlyLeadUsage(userId: string | null) {
 
 export async function persistScanSession(session: ScanSession) {
   if (!hasDatabase()) {
-    const store = await readStore();
-    store.scanSessions = [
-      { ...session, updatedAt: new Date().toISOString() },
-      ...store.scanSessions.filter((entry) => entry.id !== session.id)
-    ];
-    await writeStore(store);
+    await persistScanSessionToStore(session);
     return session;
   }
 
   try {
-    const db = getDb();
-    const result = await db.query<{ id: string; created_at: string; updated_at: string }>(
-      `insert into scan_sessions (
-        id, user_id, plan_tier, mode, access_tier, niche, location, radius, filters, query_string, source_summary,
-        summary, issue_counts, pitch_context, leads_json, map_markers_json, usage
-      ) values (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11::jsonb,$12::jsonb,$13::jsonb,$14::jsonb,$15::jsonb,$16::jsonb,$17::jsonb
-      )
-      on conflict (id) do update set
-        user_id = excluded.user_id,
-        plan_tier = excluded.plan_tier,
-        mode = excluded.mode,
-        access_tier = excluded.access_tier,
-        niche = excluded.niche,
-        location = excluded.location,
-        radius = excluded.radius,
-        filters = excluded.filters,
-        query_string = excluded.query_string,
-        source_summary = excluded.source_summary,
-        summary = excluded.summary,
-        issue_counts = excluded.issue_counts,
-        pitch_context = excluded.pitch_context,
-        leads_json = excluded.leads_json,
-        map_markers_json = excluded.map_markers_json,
-        usage = excluded.usage,
-        updated_at = now()
-      returning id, created_at, updated_at`,
-      [
-        session.id,
-        session.userId,
-        session.planTier,
-        session.mode,
-        session.accessTier,
-        session.niche,
-        session.location,
-        session.radius,
-        JSON.stringify(session.filters),
-        session.queryString,
-        JSON.stringify(session.sourceSummary),
-        JSON.stringify(session.summary),
-        JSON.stringify(session.issueCounts),
-        JSON.stringify(session.pitchContext),
-        JSON.stringify(session.leads),
-        JSON.stringify(session.mapMarkers),
-        JSON.stringify(session.usage)
-      ]
-    );
+    const result = await insertScanSession(session);
 
     return {
       ...session,
@@ -301,12 +242,7 @@ export async function persistScanSession(session: ScanSession) {
     };
   } catch (error) {
     console.warn("[scan_sessions] Falling back to local store for persistScanSession.", error);
-    const store = await readStore();
-    store.scanSessions = [
-      { ...session, updatedAt: new Date().toISOString() },
-      ...store.scanSessions.filter((entry) => entry.id !== session.id)
-    ];
-    await writeStore(store);
+    await persistScanSessionToStore(session);
     return session;
   }
 }
@@ -318,81 +254,77 @@ export async function getPersistedScanSession(sessionId: string, userId: string 
   }
 
   try {
-    const db = getDb();
-    const result = await db.query<{
-      id: string;
-      plan_tier: ScanSession["planTier"];
-      mode: ScanMode;
-      access_tier: "free" | "premium";
-      user_id: string | null;
-      niche: string;
-      location: string;
-      radius: number;
-      filters: Record<string, unknown>;
-      query_string: string;
-      source_summary: ScanSession["sourceSummary"];
-      summary: ScanSession["summary"];
-      issue_counts: ScanSession["issueCounts"];
-      pitch_context: ScanSession["pitchContext"];
-      leads_json: Lead[];
-      map_markers_json: ScanSession["mapMarkers"];
-      usage: ScanSession["usage"];
-      created_at: string;
-      updated_at: string;
-    }>(
-      `select id, plan_tier, mode, access_tier, user_id, niche, location, radius, filters, query_string, source_summary,
-              summary, issue_counts, pitch_context, leads_json, map_markers_json, usage, created_at, updated_at
-       from scan_sessions
-       where id = $1
-         and user_id is not distinct from $2
-       limit 1`,
-      [sessionId, userId]
-    );
-
+    const result = await selectPersistedScanSession(sessionId, userId);
     const row = result.rows[0];
     if (!row) {
       return null;
     }
 
-    return {
-      id: row.id,
-      mode: row.mode,
-      accessTier: row.access_tier,
-      planTier: (row.plan_tier as ScanSession["planTier"]) ?? "free",
-      userId: row.user_id,
-      niche: row.niche,
-      location: row.location,
-      radius: row.radius,
-      filters: row.filters as ScanSession["filters"],
-      queryString: row.query_string,
-      query: {
-        location: row.location,
-        niche: row.niche,
-        radius: row.radius,
-        minimumReviewCount: Number((row.filters?.minimumReviewCount as number | undefined) ?? 0),
-        websiteStatus: ((row.filters?.websiteStatus as ScanSession["filters"]["websiteStatus"]) ?? "any"),
-        businessSize: ((row.filters?.businessSize as ScanSession["filters"]["businessSize"]) ?? "any"),
-        mode: row.mode,
-        userId: row.user_id,
-        planTier: ((row.plan_tier as ScanSession["planTier"]) ?? "free"),
-        queryString: row.query_string
-      },
-      sourceSummary: row.source_summary,
-      leads: row.leads_json,
-      summary: row.summary,
-      issueCounts: row.issue_counts,
-      pitchContext: row.pitch_context,
-      mapMarkers: row.map_markers_json,
-      isEmpty: row.leads_json.length === 0,
-      usage: row.usage,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at
-    } satisfies ScanSession;
+    return mapScanSessionRow(row);
   } catch (error) {
     console.warn("[scan_sessions] Falling back to local store for getPersistedScanSession.", error);
     const store = await readStore();
     return store.scanSessions.find((session) => session.id === sessionId && session.userId === userId) ?? null;
   }
+}
+
+type PersistedScanSessionRow = {
+  id: string;
+  plan_tier?: ScanSession["planTier"] | null;
+  mode: ScanMode;
+  access_tier: "free" | "premium";
+  user_id: string | null;
+  niche: string;
+  location: string;
+  radius: number;
+  filters: Record<string, unknown>;
+  query_string: string;
+  source_summary: ScanSession["sourceSummary"];
+  summary: ScanSession["summary"];
+  issue_counts: ScanSession["issueCounts"];
+  pitch_context: ScanSession["pitchContext"];
+  leads_json: Lead[];
+  map_markers_json: ScanSession["mapMarkers"];
+  usage: ScanSession["usage"];
+  created_at: string;
+  updated_at: string;
+};
+
+function mapScanSessionRow(row: PersistedScanSessionRow): ScanSession {
+  return {
+    id: row.id,
+    mode: row.mode,
+    accessTier: row.access_tier,
+    planTier: (row.plan_tier as ScanSession["planTier"]) ?? "free",
+    userId: row.user_id,
+    niche: row.niche,
+    location: row.location,
+    radius: row.radius,
+    filters: row.filters as ScanSession["filters"],
+    queryString: row.query_string,
+    query: {
+      location: row.location,
+      niche: row.niche,
+      radius: row.radius,
+      minimumReviewCount: Number((row.filters?.minimumReviewCount as number | undefined) ?? 0),
+      websiteStatus: ((row.filters?.websiteStatus as ScanSession["filters"]["websiteStatus"]) ?? "any"),
+      businessSize: ((row.filters?.businessSize as ScanSession["filters"]["businessSize"]) ?? "any"),
+      mode: row.mode,
+      userId: row.user_id,
+      planTier: ((row.plan_tier as ScanSession["planTier"]) ?? "free"),
+      queryString: row.query_string
+    },
+    sourceSummary: row.source_summary,
+    leads: row.leads_json,
+    summary: row.summary,
+    issueCounts: row.issue_counts,
+    pitchContext: row.pitch_context,
+    mapMarkers: row.map_markers_json,
+    isEmpty: row.leads_json.length === 0,
+    usage: row.usage,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  } satisfies ScanSession;
 }
 
 export async function getSavedLeadIds(userId: string | null) {
@@ -824,8 +756,8 @@ async function queryIndexedLeadsFromDb(query: ScanQuery) {
   }>(
     `select *
      from indexed_leads
-     where niche = $1
-       and location = $2
+     where lower(niche) = lower($1)
+       and lower(location) = lower($2)
      order by opportunity_score desc`,
     [query.niche, query.location]
   );
@@ -1092,6 +1024,180 @@ async function ensureStoreDirectory(filePath: string) {
 
 function getStorePath() {
   return path.resolve(process.cwd(), env.indexedDataFile);
+}
+
+async function insertUsageLog(input: Omit<UsageLogRecord, "id" | "createdAt">) {
+  const db = getDb();
+
+  try {
+    await db.query(
+      `insert into scan_usage_logs (user_id, mode, tier, query_key, estimated_cost_usd, lead_count)
+       values ($1, $2, $3, $4, $5, $6)`,
+      [input.userId, input.mode, input.tier, input.queryKey, input.estimatedCostUsd, input.leadCount]
+    );
+  } catch (error) {
+    if (!isMissingColumnError(error, "lead_count")) {
+      throw error;
+    }
+
+    await db.query(
+      `insert into scan_usage_logs (user_id, mode, tier, query_key, estimated_cost_usd)
+       values ($1, $2, $3, $4, $5)`,
+      [input.userId, input.mode, input.tier, input.queryKey, input.estimatedCostUsd]
+    );
+  }
+}
+
+async function appendUsageLogToStore(input: Omit<UsageLogRecord, "id" | "createdAt">) {
+  try {
+    const store = await readStore();
+    store.usageLogs.push({
+      ...input,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      createdAt: new Date().toISOString()
+    });
+    await writeStore(store);
+  } catch (error) {
+    console.warn("[scan_usage_logs] Unable to persist local fallback usage log.", error);
+  }
+}
+
+async function insertScanSession(session: ScanSession) {
+  const db = getDb();
+  const sharedValues = [
+    session.id,
+    session.userId,
+    session.mode,
+    session.accessTier,
+    session.niche,
+    session.location,
+    session.radius,
+    JSON.stringify(session.filters),
+    session.queryString,
+    JSON.stringify(session.sourceSummary),
+    JSON.stringify(session.summary),
+    JSON.stringify(session.issueCounts),
+    JSON.stringify(session.pitchContext),
+    JSON.stringify(session.leads),
+    JSON.stringify(session.mapMarkers),
+    JSON.stringify(session.usage)
+  ];
+
+  try {
+    return await db.query<{ id: string; created_at: string; updated_at: string }>(
+      `insert into scan_sessions (
+        id, user_id, plan_tier, mode, access_tier, niche, location, radius, filters, query_string, source_summary,
+        summary, issue_counts, pitch_context, leads_json, map_markers_json, usage
+      ) values (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10,$11::jsonb,$12::jsonb,$13::jsonb,$14::jsonb,$15::jsonb,$16::jsonb,$17::jsonb
+      )
+      on conflict (id) do update set
+        user_id = excluded.user_id,
+        plan_tier = excluded.plan_tier,
+        mode = excluded.mode,
+        access_tier = excluded.access_tier,
+        niche = excluded.niche,
+        location = excluded.location,
+        radius = excluded.radius,
+        filters = excluded.filters,
+        query_string = excluded.query_string,
+        source_summary = excluded.source_summary,
+        summary = excluded.summary,
+        issue_counts = excluded.issue_counts,
+        pitch_context = excluded.pitch_context,
+        leads_json = excluded.leads_json,
+        map_markers_json = excluded.map_markers_json,
+        usage = excluded.usage,
+        updated_at = now()
+      returning id, created_at, updated_at`,
+      [
+        session.id,
+        session.userId,
+        session.planTier,
+        ...sharedValues.slice(2)
+      ]
+    );
+  } catch (error) {
+    if (!isMissingColumnError(error, "plan_tier")) {
+      throw error;
+    }
+
+    return db.query<{ id: string; created_at: string; updated_at: string }>(
+      `insert into scan_sessions (
+        id, user_id, mode, access_tier, niche, location, radius, filters, query_string, source_summary,
+        summary, issue_counts, pitch_context, leads_json, map_markers_json, usage
+      ) values (
+        $1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb,$11::jsonb,$12::jsonb,$13::jsonb,$14::jsonb,$15::jsonb,$16::jsonb
+      )
+      on conflict (id) do update set
+        user_id = excluded.user_id,
+        mode = excluded.mode,
+        access_tier = excluded.access_tier,
+        niche = excluded.niche,
+        location = excluded.location,
+        radius = excluded.radius,
+        filters = excluded.filters,
+        query_string = excluded.query_string,
+        source_summary = excluded.source_summary,
+        summary = excluded.summary,
+        issue_counts = excluded.issue_counts,
+        pitch_context = excluded.pitch_context,
+        leads_json = excluded.leads_json,
+        map_markers_json = excluded.map_markers_json,
+        usage = excluded.usage,
+        updated_at = now()
+      returning id, created_at, updated_at`,
+      sharedValues
+    );
+  }
+}
+
+async function selectPersistedScanSession(sessionId: string, userId: string | null) {
+  const db = getDb();
+
+  try {
+    return await db.query<PersistedScanSessionRow>(
+      `select id, plan_tier, mode, access_tier, user_id, niche, location, radius, filters, query_string, source_summary,
+              summary, issue_counts, pitch_context, leads_json, map_markers_json, usage, created_at, updated_at
+       from scan_sessions
+       where id = $1
+         and user_id is not distinct from $2
+       limit 1`,
+      [sessionId, userId]
+    );
+  } catch (error) {
+    if (!isMissingColumnError(error, "plan_tier")) {
+      throw error;
+    }
+
+    return db.query<PersistedScanSessionRow>(
+      `select id, mode, access_tier, user_id, niche, location, radius, filters, query_string, source_summary,
+              summary, issue_counts, pitch_context, leads_json, map_markers_json, usage, created_at, updated_at
+       from scan_sessions
+       where id = $1
+         and user_id is not distinct from $2
+       limit 1`,
+      [sessionId, userId]
+    );
+  }
+}
+
+async function persistScanSessionToStore(session: ScanSession) {
+  try {
+    const store = await readStore();
+    store.scanSessions = [
+      { ...session, updatedAt: new Date().toISOString() },
+      ...store.scanSessions.filter((entry) => entry.id !== session.id)
+    ];
+    await writeStore(store);
+  } catch (error) {
+    console.warn("[scan_sessions] Unable to persist local fallback scan session.", error);
+  }
+}
+
+function isMissingColumnError(error: unknown, columnName: string) {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  return message.includes(`column "${columnName.toLowerCase()}"`) || message.includes(`column ${columnName.toLowerCase()}`);
 }
 
 function mapIndexedRecordToLeadFallback(record: IndexedLeadRecord): Lead {
