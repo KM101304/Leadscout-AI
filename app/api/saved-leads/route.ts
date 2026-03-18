@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getViewer } from "@/lib/auth";
+import { getViewerFresh } from "@/lib/auth";
 import { Lead } from "@/lib/types";
 import {
   getIndexedLeadById,
@@ -11,7 +11,7 @@ import {
 } from "@/services/indexedLeadRepository";
 
 export async function GET() {
-  const viewer = await getViewer();
+  const viewer = await getViewerFresh();
   if (!viewer.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -27,7 +27,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const viewer = await getViewer();
+  const viewer = await getViewerFresh();
   if (!viewer.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const viewer = await getViewer();
+  const viewer = await getViewerFresh();
   if (!viewer.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

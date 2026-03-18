@@ -26,7 +26,7 @@ const defaultViewer: ViewerContext = {
   }
 };
 
-export const getViewer = cache(async (): Promise<ViewerContext> => {
+async function readViewer(): Promise<ViewerContext> {
   if (!hasSupabaseAuth) {
     return defaultViewer;
   }
@@ -36,24 +36,38 @@ export const getViewer = cache(async (): Promise<ViewerContext> => {
     const {
       data: { user }
     } = await supabase.auth.getUser();
-    const fallbackTier = normalizePlanTier(user?.user_metadata?.plan_tier ?? user?.app_metadata?.plan_tier ?? env.defaultPlanTier);
-    const billingSubscription = user ? await getBillingSubscriptionSafely(user.id) : null;
-    const leadsUsedThisMonth = user ? await countMonthlyLeadUsage(user.id) : 0;
-    const tier = billingSubscription ? getEffectivePlanTier(billingSubscription, fallbackTier) : "free";
-    const plan = planDefinitions.find((entry) => entry.tier === tier) ?? planDefinitions[0];
+
+    if (!user) {
+      return defaultViewer;
+    }
+
+    const fallbackTier = normalizePlanTier(user.user_metadata?.plan_tier ?? user.app_metadata?.plan_tier ?? env.defaultPlanTier);
+    const billingSubscription = await getBillingSubscriptionSafely(user.id);
+    const leadsUsedThisMonth = await countMonthlyLeadUsageSafely(user.id);
+    const tier = billingSubscription ? getEffectivePlanTier(billingSubscription, fallbackTier) : fallbackTier;
+    const plan =
+      planDefinitions.find((entry) => entry.tier === tier) ??
+      planDefinitions.find((entry) => entry.tier === fallbackTier) ??
+      planDefinitions[0];
 
     return {
       user,
       subscription: {
         tier,
-        leadsUsedThisMonth,
+        leadsUsedThisMonth: Number.isFinite(leadsUsedThisMonth) ? leadsUsedThisMonth : 0,
         leadsLimit: billingSubscription ? getLeadsLimitForTier(tier) : parseLeadLimit(plan.monthlyLeadLimit)
       }
     };
   } catch {
     return defaultViewer;
   }
-});
+}
+
+export const getViewer = cache(readViewer);
+
+export async function getViewerFresh() {
+  return readViewer();
+}
 
 export async function requireViewer() {
   const viewer = await getViewer();
@@ -83,5 +97,13 @@ async function getBillingSubscriptionSafely(userId: string) {
     return await getBillingSubscriptionByUserId(userId);
   } catch {
     return null;
+  }
+}
+
+async function countMonthlyLeadUsageSafely(userId: string) {
+  try {
+    return await countMonthlyLeadUsage(userId);
+  } catch {
+    return 0;
   }
 }

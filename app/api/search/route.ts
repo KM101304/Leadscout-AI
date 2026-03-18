@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getViewer } from "@/lib/auth";
+import { getViewerFresh } from "@/lib/auth";
 import { ScanConfigurationError, ScanExecutionError, ScanQueryError } from "@/lib/scanErrors";
 import { logAppEvent } from "@/services/indexedLeadRepository";
 import { runLeadScan } from "@/services/scanningService";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const viewer = await getViewer();
+  const viewer = await getViewerFresh();
   if (!viewer.user) {
     return NextResponse.json({ error: "You must be signed in to create a scan session." }, { status: 401 });
   }

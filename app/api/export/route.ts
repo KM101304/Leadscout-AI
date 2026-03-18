@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
-import { getViewer } from "@/lib/auth";
+import { getViewerFresh } from "@/lib/auth";
 import { leadsToCsv } from "@/services/scanningService";
 import { createExportHistory, getPersistedScanSession, logAppEvent } from "@/services/indexedLeadRepository";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const viewer = await getViewer();
+  const viewer = await getViewerFresh();
   const sessionId = searchParams.get("sessionId");
 
   try {
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const viewer = await getViewer();
+  const viewer = await getViewerFresh();
 
   try {
     if (!viewer.user) {

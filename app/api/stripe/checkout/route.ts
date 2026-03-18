@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getViewer } from "@/lib/auth";
+import { getViewerFresh } from "@/lib/auth";
 import { logAppEvent } from "@/services/indexedLeadRepository";
 import { createCheckoutSession } from "@/services/billingService";
 
 export async function POST(request: NextRequest) {
-  const viewer = await getViewer();
+  const viewer = await getViewerFresh();
   if (!viewer.user) {
     return NextResponse.json({ error: "You must be signed in to start checkout." }, { status: 401 });
   }
