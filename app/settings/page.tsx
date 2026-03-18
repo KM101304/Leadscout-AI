@@ -1,6 +1,12 @@
 import { AppShell } from "@/components/AppShell";
+import { BillingActionButton } from "@/components/BillingActionButton";
+import { getViewer } from "@/lib/auth";
+import { getBillingSubscriptionByUserId, isBillingConfigured } from "@/services/billingService";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const viewer = await getViewer();
+  const billing = viewer.user ? await getBillingSubscriptionByUserIdSafe(viewer.user.id) : null;
+
   return (
     <AppShell
       title="Settings"
@@ -38,11 +44,34 @@ export default function SettingsPage() {
             </div>
             <div className="subtle-panel rounded-[18px] section-subtle">
               <p className="meta-text text-slate-400">Stripe billing</p>
-              <p className="mt-2 text-sm text-white">Webhook pending deployment URL</p>
+              <p className="mt-2 text-sm text-white">
+                {billing
+                  ? `${billing.planTier.toUpperCase()} plan · ${billing.status.replaceAll("_", " ")}`
+                  : isBillingConfigured()
+                    ? "Stripe is configured and ready for checkout"
+                    : "Stripe still needs full configuration"}
+              </p>
+              {viewer.subscription.tier !== "free" ? (
+                <div className="mt-4">
+                  <BillingActionButton
+                    action="portal"
+                    label="Manage billing in Stripe"
+                    className="glass-button inline-flex rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white"
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
         </section>
       </div>
     </AppShell>
   );
+}
+
+async function getBillingSubscriptionByUserIdSafe(userId: string) {
+  try {
+    return await getBillingSubscriptionByUserId(userId);
+  } catch {
+    return null;
+  }
 }

@@ -3,18 +3,21 @@ import { SearchCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { SearchForm } from "@/components/SearchForm";
 import { Badge } from "@/components/ui";
+import { getViewer } from "@/lib/auth";
 import { env } from "@/lib/env";
 
 export default async function DashboardPage() {
+  const viewer = await getViewer();
+
   return (
     <AppShell
       title="Search local markets and surface easy wins"
-      subtitle="Run a real scan from one query and keep every downstream insight aligned to that search."
+      subtitle="Use indexed search by default, then unlock cache-first live scans when premium users need fresh coverage."
       activeNav="dashboard"
       showWorkspaceHeader={false}
     >
       <div className="app-page-stack">
-        <SearchForm />
+        <SearchForm tier={viewer.subscription.tier} />
 
         <section className="dashboard-mobile-priority-grid">
           <section className="surface-primary rounded-[28px] section-block">
@@ -37,13 +40,19 @@ export default async function DashboardPage() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="eyebrow">Workspace state</p>
-                <h2 className="card-title mt-2 text-white">No scan loaded yet</h2>
+                <h2 className="card-title mt-2 text-white">No scan session loaded yet</h2>
               </div>
-              {env.enableDemoMode ? <Badge tone="warning">Demo mode enabled</Badge> : <Badge>Live only</Badge>}
+              {viewer.subscription.tier === "free" ? (
+                <Badge tone="warning">Indexed only</Badge>
+              ) : env.enableDemoMode ? (
+                <Badge tone="warning">Premium + demo available</Badge>
+              ) : (
+                <Badge>Premium live scans enabled</Badge>
+              )}
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-300">
-              The dashboard no longer shows preset niche results by default. Run a scan to populate the workspace with a
-              matching session.
+              Free searches stay inside the indexed dataset so they do not trigger paid APIs. Premium users can choose
+              indexed-only, cache-first auto mode, or an explicit live scan when freshness matters.
             </p>
             <div className="mt-5">
               <Link

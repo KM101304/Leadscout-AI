@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, MapPinned, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { PlanTier } from "@/lib/plans";
 
 export function SearchForm({
   initialLocation = "",
   initialNiche = "",
-  compact = false
+  compact = false,
+  tier = "free"
 }: {
   initialLocation?: string;
   initialNiche?: string;
   compact?: boolean;
+  tier?: PlanTier;
 }) {
   const router = useRouter();
   const [location, setLocation] = useState(initialLocation);
@@ -20,6 +23,7 @@ export function SearchForm({
   const [minimumReviewCount, setMinimumReviewCount] = useState("0");
   const [websiteStatus, setWebsiteStatus] = useState("any");
   const [businessSize, setBusinessSize] = useState("any");
+  const [mode, setMode] = useState<"auto" | "indexed" | "live">(tier === "free" ? "indexed" : "auto");
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -34,7 +38,8 @@ export function SearchForm({
       radius,
       minimumReviewCount,
       websiteStatus,
-      businessSize
+      businessSize,
+      mode: tier === "free" ? "indexed" : mode
     });
     router.push(`/results?${params.toString()}`);
   };
@@ -51,7 +56,7 @@ export function SearchForm({
         </div>
         <div className="inline-flex max-w-full items-center gap-2 self-start rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-[12px] font-medium text-cyan-100">
           <Sparkles className="h-3.5 w-3.5" />
-          AI scoring + live data fallback
+          {tier === "free" ? "Indexed search only" : "Indexed cache + premium live scans"}
         </div>
       </div>
 
@@ -130,16 +135,32 @@ export function SearchForm({
               </select>
             </div>
           </label>
+          <label className="space-y-2">
+            <span className="field-label">Scan source</span>
+            <div className="field-shell">
+              <select
+                value={tier === "free" ? "indexed" : mode}
+                onChange={(event) => setMode(event.target.value as "auto" | "indexed" | "live")}
+                className="field-input"
+                disabled={tier === "free"}
+              >
+                {tier === "free" ? <option value="indexed">Indexed market results</option> : null}
+                {tier !== "free" ? <option value="auto">Auto: cache first</option> : null}
+                {tier !== "free" ? <option value="indexed">Indexed only</option> : null}
+                {tier !== "free" ? <option value="live">Live premium scan</option> : null}
+              </select>
+            </div>
+          </label>
         </div>
 
         <div className="mt-6 grid gap-3.5 md:gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="surface-minimal rounded-[20px] px-4 py-3.5 text-[13px] leading-6 text-slate-300 md:px-4 md:py-4 md:text-[14px]">
             <div className="flex flex-wrap gap-3">
-              <span>Generate in under 10 seconds</span>
+              <span>{tier === "free" ? "Fast indexed lookup" : "Cache-first scan routing"}</span>
               <span className="text-slate-500">•</span>
-              <span>Score instantly</span>
+              <span>Score consistently</span>
               <span className="text-slate-500">•</span>
-              <span>Prepare outreach fast</span>
+              <span>{tier === "free" ? "No automatic API cost" : "Only refresh live when needed"}</span>
             </div>
             {isLoading ? (
               <div className="progress-shine mt-4 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-sky-400" />
@@ -151,7 +172,7 @@ export function SearchForm({
             className="cta-primary glass-button inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 md:h-[52px] md:text-base lg:w-auto"
           >
             <Search className="h-4 w-4" />
-            {isLoading ? "Scanning businesses..." : "Scan businesses"}
+            {isLoading ? "Building scan session..." : tier === "free" ? "Search indexed leads" : "Run scan"}
           </button>
         </div>
       </div>

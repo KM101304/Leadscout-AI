@@ -11,6 +11,9 @@ export interface PlanDefinition {
   cta: string;
   highlights: string[];
   unlocks: string[];
+  indexedSearches: string;
+  liveScans: string;
+  liveScanMonthlyLimit: number;
 }
 
 export const planDefinitions: PlanDefinition[] = [
@@ -24,7 +27,10 @@ export const planDefinitions: PlanDefinition[] = [
     monthlyLeadLimit: "25 leads / month",
     cta: "Start free",
     highlights: ["25 monthly leads", "Core scoring", "Basic lead table"],
-    unlocks: ["Manual review flow", "Single export path", "Limited outreach prep"]
+    unlocks: ["Manual review flow", "Single export path", "Limited outreach prep"],
+    indexedSearches: "Indexed database only",
+    liveScans: "Upgrade required",
+    liveScanMonthlyLimit: 0
   },
   {
     tier: "pro",
@@ -36,7 +42,10 @@ export const planDefinitions: PlanDefinition[] = [
     monthlyLeadLimit: "Unlimited searches",
     cta: "Upgrade to Pro",
     highlights: ["Unlimited searches", "CSV exports", "AI pitch variants", "Opportunity insights", "Saved workflows"],
-    unlocks: ["Pitch drafts on every lead", "Bulk shortlisting", "Winning angle suggestions"]
+    unlocks: ["Pitch drafts on every lead", "Bulk shortlisting", "Winning angle suggestions"],
+    indexedSearches: "Unlimited indexed coverage",
+    liveScans: "Cache-first live scans",
+    liveScanMonthlyLimit: 75
   },
   {
     tier: "agency",
@@ -48,7 +57,10 @@ export const planDefinitions: PlanDefinition[] = [
     monthlyLeadLimit: "Unlimited + bulk workflows",
     cta: "Upgrade to Agency",
     highlights: ["Team accounts", "Bulk exports", "Advanced scoring views", "Queue management", "Playbooks and routing"],
-    unlocks: ["Shared call queues", "Owner assignment", "Team dashboards", "Export history"]
+    unlocks: ["Shared call queues", "Owner assignment", "Team dashboards", "Export history"],
+    indexedSearches: "Unlimited indexed coverage",
+    liveScans: "High-volume live scans",
+    liveScanMonthlyLimit: 400
   }
 ];
 
@@ -58,6 +70,12 @@ export const featureMatrix = [
     free: "25 / month",
     pro: "Unlimited",
     agency: "Unlimited"
+  },
+  {
+    name: "Search source",
+    free: "Indexed database",
+    pro: "Indexed + live refresh",
+    agency: "Indexed + live refresh"
   },
   {
     name: "CSV exports",

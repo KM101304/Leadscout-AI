@@ -2,6 +2,7 @@ import Link from "next/link";
 import { featureMatrix, planDefinitions, PlanTier } from "@/lib/plans";
 import { Badge } from "@/components/ui";
 import { Check, LockKeyhole, Sparkles, Users } from "lucide-react";
+import { BillingActionButton } from "@/components/BillingActionButton";
 
 export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
   return (
@@ -51,18 +52,29 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
                 </ul>
               </div>
 
-              <Link
-                href="/pricing"
-                className={`glass-button mt-8 inline-flex w-full justify-center rounded-full px-5 py-3 text-sm font-semibold ${
-                  isCurrent
-                    ? "border border-white/10 bg-white/[0.04] text-white"
-                    : isFeatured
+              {isCurrent ? (
+                <div className="glass-button mt-8 inline-flex w-full justify-center rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white">
+                  You are here
+                </div>
+              ) : plan.tier === "free" ? (
+                <Link
+                  href="/dashboard"
+                  className="glass-button mt-8 inline-flex w-full justify-center rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white"
+                >
+                  Return to free
+                </Link>
+              ) : (
+                <BillingActionButton
+                  action="checkout"
+                  planTier={plan.tier}
+                  label={plan.cta}
+                  className={`glass-button mt-8 inline-flex w-full justify-center rounded-full px-5 py-3 text-sm font-semibold ${
+                    isFeatured
                       ? "bg-gradient-to-r from-cyan-400 to-sky-400 text-slate-950"
                       : "border border-white/10 bg-white/[0.04] text-white"
-                }`}
-              >
-                {isCurrent ? "You are here" : plan.cta}
-              </Link>
+                  }`}
+                />
+              )}
             </article>
           );
         })}

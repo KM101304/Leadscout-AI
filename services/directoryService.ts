@@ -1,34 +1,16 @@
 import { env } from "@/lib/env";
-import { generateMockBusinesses, makeMockSignals } from "@/lib/mockData";
+import { makeMockSignals } from "@/lib/mockData";
 import { ScanConfigurationError } from "@/lib/scanErrors";
 import { DirectoryBusiness, ScanQuery } from "@/lib/types";
 import { slugify } from "@/lib/utils";
 
-export async function searchBusinessDirectory(query: ScanQuery): Promise<{
-  businesses: DirectoryBusiness[];
-  mode: "live" | "demo";
-}> {
-  const liveMatches = await searchGooglePlaces(query);
-
-  if (liveMatches.length > 0) {
-    return {
-      businesses: applyDirectoryFilters(liveMatches, query),
-      mode: "live"
-    };
-  }
-
-  if (env.enableDemoMode) {
-    return {
-      businesses: applyDirectoryFilters(generateMockBusinesses(query.location, query.niche), query),
-      mode: "demo"
-    };
-  }
-
+export async function searchBusinessDirectory(query: ScanQuery): Promise<DirectoryBusiness[]> {
   if (!env.googlePlacesApiKey) {
-    throw new ScanConfigurationError("Live scanning is not configured. Add GOOGLE_PLACES_API_KEY or explicitly enable demo mode.");
+    throw new ScanConfigurationError("Live scanning is not configured. Add GOOGLE_PLACES_API_KEY to enable premium live scans.");
   }
 
-  throw new ScanConfigurationError(`No live search results were returned for ${query.niche} in ${query.location}.`);
+  const liveMatches = await searchGooglePlaces(query);
+  return applyDirectoryFilters(liveMatches, query);
 }
 
 function applyDirectoryFilters(matches: DirectoryBusiness[], input: ScanQuery) {

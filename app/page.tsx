@@ -74,7 +74,7 @@ export default async function HomePage() {
                 {primaryLabel}
               </Link>
               <Link
-                href="/results?location=Vancouver&niche=dentists"
+                href="/results?location=Vancouver&niche=dentists&mode=demo"
                 className="glass-button rounded-full border border-white/10 bg-white/5 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10"
               >
                 See example results
@@ -100,7 +100,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="workspace-frame__body pt-0">
-              <SearchForm initialLocation="Vancouver" initialNiche="dentists" compact />
+              <SearchForm initialLocation="Vancouver" initialNiche="dentists" compact tier={viewer.subscription.tier} />
               <div className="mt-4 grid gap-3 md:grid-cols-3">
                 <div className="subtle-panel rounded-2xl p-4">
                   <p className="text-sm text-slate-300">Top opportunity</p>
