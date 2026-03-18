@@ -10,7 +10,7 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
       <div className="landing-card-grid xl:grid-cols-3">
         {planDefinitions.map((plan) => {
           const isCurrent = plan.tier === currentTier;
-          const isFeatured = plan.tier === "pro";
+          const isFeatured = plan.tier === "starter";
 
           return (
             <article
@@ -91,6 +91,7 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
               <tr className="border-b border-white/10">
                 <th className="px-3 py-3 font-medium">Capability</th>
                 <th className="px-3 py-3 font-medium">Free</th>
+                <th className="px-3 py-3 font-medium">Starter</th>
                 <th className="px-3 py-3 font-medium">Pro</th>
                 <th className="px-3 py-3 font-medium">Agency</th>
               </tr>
@@ -100,6 +101,7 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
                 <tr key={row.name} className="border-b border-white/5">
                   <td className="px-3 py-4 text-white">{row.name}</td>
                   <td className="px-3 py-4 text-slate-300">{row.free}</td>
+                  <td className="px-3 py-4 text-slate-200">{row.starter}</td>
                   <td className="px-3 py-4 text-slate-200">{row.pro}</td>
                   <td className="px-3 py-4 text-slate-200">{row.agency}</td>
                 </tr>

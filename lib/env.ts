@@ -11,6 +11,7 @@ export const env = {
   stripeSecretKey: process.env.STRIPE_SECRET_KEY?.trim() || "",
   stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim() || "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET?.trim() || "",
+  stripeStarterPriceId: process.env.STRIPE_STARTER_PRICE_ID?.trim() || "",
   stripeProPriceId: process.env.STRIPE_PRO_PRICE_ID?.trim() || "",
   stripeAgencyPriceId: process.env.STRIPE_AGENCY_PRICE_ID?.trim() || "",
   enableLiveScan: process.env.ENABLE_LIVE_SCAN?.trim() === "true",

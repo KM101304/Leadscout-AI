@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = (await request.json()) as { planTier?: "pro" | "agency" };
-    if (body.planTier !== "pro" && body.planTier !== "agency") {
+    const body = (await request.json()) as { planTier?: "starter" | "pro" | "agency" };
+    if (body.planTier !== "starter" && body.planTier !== "pro" && body.planTier !== "agency") {
       return NextResponse.json({ error: "A paid plan is required for checkout." }, { status: 400 });
     }
 

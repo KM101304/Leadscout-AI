@@ -19,6 +19,10 @@ export function getStripe() {
 }
 
 export function getPriceIdForPlan(planTier: Exclude<PlanTier, "free">) {
+  if (planTier === "starter") {
+    return env.stripeStarterPriceId;
+  }
+
   if (planTier === "pro") {
     return env.stripeProPriceId;
   }
@@ -33,6 +37,10 @@ export function getPlanTierFromPriceId(priceId: string | null | undefined): Plan
 
   if (priceId && priceId === env.stripeProPriceId) {
     return "pro";
+  }
+
+  if (priceId && priceId === env.stripeStarterPriceId) {
+    return "starter";
   }
 
   return "free";

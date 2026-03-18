@@ -44,7 +44,8 @@ const featureCards = [
 
 const pricing = [
   { name: "Free", price: "$0", value: "25 leads per month", badge: "For testing the workflow" },
-  { name: "Pro", price: "$49", value: "Unlimited scans, exports, AI pitch generation", badge: "Best for solo operators" },
+  { name: "Starter", price: "$27", value: "Hybrid scans, exports, and limited live refresh", badge: "Best first paid tier" },
+  { name: "Pro", price: "$49", value: "Semi-hybrid scans, exports, AI pitch generation", badge: "Best for solo operators" },
   { name: "Agency", price: "$149", value: "Team accounts, bulk exports, advanced scoring", badge: "Built for outbound teams" }
 ];
 
@@ -234,10 +235,10 @@ export default async function HomePage() {
           title="Start free, upgrade when the pipeline gets serious"
           description="A clear path from solo prospecting to agency-scale outbound operations."
         />
-        <div className="landing-card-grid mt-8 md:grid-cols-3">
+        <div className="landing-card-grid mt-8 md:grid-cols-2 xl:grid-cols-4">
           {pricing.map((plan) => (
             <article key={plan.name} className="surface-primary rounded-[2rem] p-6 md:p-7">
-              <Badge tone={plan.name === "Pro" ? "success" : "default"}>{plan.badge}</Badge>
+              <Badge tone={plan.name === "Starter" ? "success" : "default"}>{plan.badge}</Badge>
               <h3 className="mt-5 text-xl font-semibold text-white">{plan.name}</h3>
               <p className="mt-4 text-4xl font-semibold text-white">{plan.price}</p>
               <p className="mt-3 text-slate-300">{plan.value}</p>

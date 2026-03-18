@@ -64,7 +64,7 @@ export async function requireViewer() {
 }
 
 function normalizePlanTier(value: unknown): PlanTier {
-  return value === "pro" || value === "agency" ? value : "free";
+  return value === "starter" || value === "pro" || value === "agency" ? value : "free";
 }
 
 function parseLeadLimit(value: string) {

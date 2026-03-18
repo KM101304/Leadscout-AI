@@ -94,13 +94,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
                 {viewer.subscription.tier === "free" ? (
                   <div className="mt-6">
                     <UpgradePrompt
-                      tier="pro"
-                      title="Unlock live scans for uncovered markets"
-                      description="Premium scans fetch new businesses, run enrichment, and write reusable results back into the indexed database."
+                      tier="starter"
+                      title="Unlock hybrid scans for uncovered markets"
+                      description="Starter introduces the hybrid framework so free users can upgrade into indexed search plus limited live refresh without jumping straight to Pro."
                       bullets={[
-                        "Live scans are premium-only so free usage cannot create uncontrolled API costs.",
+                        "Starter unlocks hybrid scan routing with limited live refresh.",
+                        "Free users still stay fully indexed so costs stay protected.",
                         "Fresh markets get stored for future indexed reuse.",
-                        "Cache-first logic avoids unnecessary re-fetching when coverage is already good."
+                        "Pro keeps a broader semi-hybrid refresh envelope for heavier usage."
                       ]}
                     />
                   </div>

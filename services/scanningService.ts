@@ -20,7 +20,7 @@ import { scanWebsite } from "@/lib/websiteScanner";
 
 export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
   const query = normalizeScanQuery(input);
-  const accessTier = input.planTier === "pro" || input.planTier === "agency" ? "premium" : "free";
+  const accessTier = input.planTier === "starter" || input.planTier === "pro" || input.planTier === "agency" ? "premium" : "free";
   const indexedResult = await queryIndexedLeads(query);
   const liveScansThisMonth = await countMonthlyUsage(input.userId ?? null, "live");
   const liveScanLimit = resolveLiveScanLimit(input.planTier);
@@ -30,6 +30,7 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
     isFresh(indexedResult.lastScannedAt, env.premiumFreshnessHours);
 
   const mode = resolveMode({
+    planTier: input.planTier ?? "free",
     requestedMode: query.mode,
     accessTier,
     hasIndexedCoverage: indexedResult.coverageCount > 0,
@@ -73,7 +74,7 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
         indexedLeads.length > 0
           ? "Results came from the indexed lead database only. No live API calls were made for this search."
           : accessTier === "free"
-            ? "No indexed results are available for this market yet. Upgrade to run a premium live scan when you need fresh coverage."
+            ? "No indexed results are available for this market yet. Upgrade to Starter for hybrid scans when you need fresh coverage."
             : "No indexed results are available yet, and a live refresh was not requested."
     });
   }
@@ -442,10 +443,10 @@ function buildScanSession({
     emptyStateMessage:
       sortedLeads.length === 0
         ? accessTier === "free"
-          ? "This search only checked the indexed database, so no external API costs were triggered. Upgrade to run a live premium scan for fresh coverage."
+          ? "This search only checked the indexed database, so no external API costs were triggered. Upgrade to Starter to unlock hybrid scan refresh for fresh coverage."
           : "Try a live premium scan to fetch and analyze fresh businesses for this market."
         : undefined,
-    upgradeCtaLabel: accessTier === "free" ? "Upgrade for live scan" : undefined,
+    upgradeCtaLabel: accessTier === "free" ? "Upgrade to Starter" : undefined,
     usage: {
       liveScansThisMonth,
       liveScanLimit
@@ -456,6 +457,7 @@ function buildScanSession({
 }
 
 function resolveMode(input: {
+  planTier: NonNullable<SearchInput["planTier"]>;
   requestedMode: ScanModePreference;
   accessTier: ScanAccessTier;
   hasIndexedCoverage: boolean;
@@ -473,6 +475,18 @@ function resolveMode(input: {
 
   if (input.accessTier === "free") {
     return "indexed";
+  }
+
+  if (input.planTier === "starter") {
+    if (input.requestedMode === "indexed") {
+      return "indexed";
+    }
+
+    if (input.requestedMode === "live") {
+      return input.liveScansThisMonth >= input.liveScanLimit ? "indexed" : "live";
+    }
+
+    return input.hasIndexedCoverage || input.liveScansThisMonth >= input.liveScanLimit ? "indexed" : "live";
   }
 
   if (input.requestedMode === "indexed") {
@@ -605,6 +619,7 @@ function normalizeMode(mode: SearchInput["mode"]): ScanModePreference {
 
 function resolveLiveScanLimit(planTier: SearchInput["planTier"]) {
   if (planTier === "agency") return 400;
+  if (planTier === "starter") return 20;
   if (planTier === "pro") return 75;
   return env.freeLiveScanMonthlyLimit;
 }
