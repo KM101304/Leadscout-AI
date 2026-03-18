@@ -519,6 +519,7 @@ select:focus-visible {
 
 .field-input {
   min-height: var(--control-height);
+  min-width: 0;
   width: 100%;
   border: 0;
   background: transparent;
@@ -539,6 +540,12 @@ select.field-input {
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
   padding-right: 40px;
+}
+
+.field-input-select {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 select.field-input option,

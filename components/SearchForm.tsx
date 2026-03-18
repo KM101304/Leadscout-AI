@@ -29,6 +29,15 @@ export function SearchForm({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const sourceOptions =
+    tier === "free"
+      ? [{ value: "indexed", label: "Indexed results" }]
+      : [
+          { value: "auto", label: "Auto: cache first" },
+          { value: "indexed", label: "Indexed only" },
+          { value: "live", label: "Live refresh" }
+        ];
+
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!location.trim() || !niche.trim()) {
@@ -55,15 +64,27 @@ export function SearchForm({
 
     try {
       const response = await fetch(`/api/search?${params.toString()}`, { cache: "no-store" });
-      const payload = (await response.json()) as { id?: string; error?: string };
+      const raw = await response.text();
+      let payload: { id?: string; error?: string } = {};
+
+      if (raw) {
+        try {
+          payload = JSON.parse(raw) as { id?: string; error?: string };
+        } catch {
+          payload = {};
+        }
+      }
 
       if (!response.ok || !payload.id) {
-        throw new Error(payload.error || "Unable to create a scan session.");
+        const fallbackMessage =
+          !response.ok && raw && !raw.trim().startsWith("<") ? raw.trim() : "Unable to create a scan session.";
+        throw new Error(normalizeScanError(payload.error || fallbackMessage));
       }
 
       router.push(`/results?sessionId=${encodeURIComponent(payload.id)}`);
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Unable to create a scan session.");
+      const message = requestError instanceof Error ? requestError.message : "Unable to create a scan session.";
+      setError(normalizeScanError(message));
       setIsLoading(false);
     }
   };
@@ -165,13 +186,15 @@ export function SearchForm({
               <select
                 value={tier === "free" ? "indexed" : mode}
                 onChange={(event) => setMode(event.target.value as "auto" | "indexed" | "live")}
-                className="field-input"
+                className="field-input field-input-select"
                 disabled={tier === "free"}
+                title={tier === "free" ? "Indexed results" : undefined}
               >
-                {tier === "free" ? <option value="indexed">Indexed market results</option> : null}
-                {tier !== "free" ? <option value="auto">Auto: cache first</option> : null}
-                {tier !== "free" ? <option value="indexed">Indexed only</option> : null}
-                {tier !== "free" ? <option value="live">Live premium scan</option> : null}
+                {sourceOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </label>
@@ -203,4 +226,24 @@ export function SearchForm({
       </div>
     </form>
   );
+}
+
+function normalizeScanError(message: string) {
+  const normalized = message.trim();
+  const lower = normalized.toLowerCase();
+
+  if (!normalized) {
+    return "We couldn't build the scan session right now. Please try again in a moment.";
+  }
+
+  if (
+    lower === "the scan request failed." ||
+    lower.includes("unexpected token") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("networkerror")
+  ) {
+    return "We couldn't build the scan session right now. Please try the same search again in a moment.";
+  }
+
+  return normalized;
 }
