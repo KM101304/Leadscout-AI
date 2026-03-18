@@ -233,12 +233,13 @@ export function leadsToCsv(leads: Lead[]) {
     lead.lastScannedAt
   ]);
 
+  const escapeCsvCell = (value: unknown) => {
+    const normalized = value == null ? "" : String(value);
+    return `"${normalized.replace(/"/g, '""')}"`;
+  };
+
   return [header, ...rows]
-    .map((row) =>
-      row
-        .map((cell) => `"${cell.replaceAll('"', '""')}"`)
-        .join(",")
-    )
+    .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
     .join("\n");
 }
 
