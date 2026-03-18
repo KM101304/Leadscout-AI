@@ -53,6 +53,8 @@ export default async function HomePage() {
   const viewer = await getViewer();
   const primaryHref = viewer.user ? "/dashboard" : "/login";
   const primaryLabel = viewer.user ? "Open dashboard" : "Login to start scanning";
+  const demoHref = viewer.user ? "/dashboard" : "/login";
+  const demoLabel = viewer.user ? "Open a demo scan from dashboard" : "Login to view demo scans";
 
   return (
     <main className="landing-stack pb-10 md:pb-14">
@@ -75,10 +77,10 @@ export default async function HomePage() {
                 {primaryLabel}
               </Link>
               <Link
-                href="/results?location=Vancouver&niche=dentists&mode=demo"
+                href={demoHref}
                 className="glass-button rounded-full border border-white/10 bg-white/5 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10"
               >
-                See example results
+                {demoLabel}
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -101,7 +103,13 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="workspace-frame__body pt-0">
-              <SearchForm initialLocation="Vancouver" initialNiche="dentists" compact tier={viewer.subscription.tier} />
+              <SearchForm
+                initialLocation="Vancouver"
+                initialNiche="dentists"
+                compact
+                tier={viewer.subscription.tier}
+                isAuthenticated={Boolean(viewer.user)}
+              />
               <div className="mt-4 grid gap-3 md:grid-cols-3">
                 <div className="subtle-panel rounded-2xl p-4">
                   <p className="text-sm text-slate-300">Top opportunity</p>

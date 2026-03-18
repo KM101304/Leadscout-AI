@@ -5,7 +5,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabaseAuth } from "@/lib/supabase/shared";
 import { env } from "@/lib/env";
 import { planDefinitions, PlanTier } from "@/lib/plans";
-import { getBillingSubscriptionByUserId, getLeadsLimitForTier } from "@/services/billingService";
+import { countMonthlyLeadUsage } from "@/services/indexedLeadRepository";
+import { getBillingSubscriptionByUserId, getEffectivePlanTier, getLeadsLimitForTier } from "@/services/billingService";
 
 export interface ViewerContext {
   user: User | null;
@@ -37,14 +38,15 @@ export const getViewer = cache(async (): Promise<ViewerContext> => {
     } = await supabase.auth.getUser();
     const fallbackTier = normalizePlanTier(user?.user_metadata?.plan_tier ?? user?.app_metadata?.plan_tier ?? env.defaultPlanTier);
     const billingSubscription = user ? await getBillingSubscriptionSafely(user.id) : null;
-    const tier = billingSubscription?.planTier ?? fallbackTier;
+    const leadsUsedThisMonth = user ? await countMonthlyLeadUsage(user.id) : 0;
+    const tier = billingSubscription ? getEffectivePlanTier(billingSubscription, fallbackTier) : "free";
     const plan = planDefinitions.find((entry) => entry.tier === tier) ?? planDefinitions[0];
 
     return {
       user,
       subscription: {
         tier,
-        leadsUsedThisMonth: 0,
+        leadsUsedThisMonth,
         leadsLimit: billingSubscription ? getLeadsLimitForTier(tier) : parseLeadLimit(plan.monthlyLeadLimit)
       }
     };

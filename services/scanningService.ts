@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { scoreLead } from "@/lib/leadScoring";
 import { generateMockBusinesses } from "@/lib/mockData";
 import { generatePitch } from "@/lib/pitchGenerator";
@@ -14,13 +15,46 @@ import {
   SearchInput
 } from "@/lib/types";
 import { searchBusinessDirectory } from "@/services/directoryService";
-import { countMonthlyUsage, deriveIssueCounts, logUsage, queryIndexedLeads, upsertIndexedLeads } from "@/services/indexedLeadRepository";
+import {
+  countMonthlyLeadUsage,
+  countMonthlyUsage,
+  deriveIssueCounts,
+  logAppEvent,
+  getSavedLeadIds,
+  logUsage,
+  persistScanSession,
+  queryIndexedLeads,
+  upsertIndexedLeads
+} from "@/services/indexedLeadRepository";
 import { slugify } from "@/lib/utils";
 import { scanWebsite } from "@/lib/websiteScanner";
+import { getLeadsLimitForTier } from "@/services/billingService";
 
 export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
   const query = normalizeScanQuery(input);
-  const accessTier = input.planTier === "starter" || input.planTier === "pro" || input.planTier === "agency" ? "premium" : "free";
+  const planTier = input.planTier ?? "free";
+  const accessTier = planTier === "starter" || planTier === "pro" || planTier === "agency" ? "premium" : "free";
+  const monthlyLeadLimit = getLeadsLimitForTier(planTier);
+  const leadsUsedThisMonth = await countMonthlyLeadUsage(input.userId ?? null);
+
+  if (Number.isFinite(monthlyLeadLimit) && leadsUsedThisMonth >= monthlyLeadLimit) {
+    await logAppEvent({
+      scope: "scan",
+      level: "warning",
+      message: "Monthly lead limit reached before starting scan.",
+      userId: input.userId ?? null,
+      metadata: {
+        location: query.location,
+        niche: query.niche,
+        planTier,
+        leadsUsedThisMonth,
+        monthlyLeadLimit
+      }
+    });
+    throw new ScanExecutionError("You have reached this month's included lead limit for your plan. Upgrade to continue scanning.");
+  }
+
+  const savedLeadIds = await getSavedLeadIds(input.userId ?? null);
   const indexedResult = await queryIndexedLeads(query);
   const liveScansThisMonth = await countMonthlyUsage(input.userId ?? null, "live");
   const liveScanLimit = resolveLiveScanLimit(input.planTier);
@@ -30,7 +64,7 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
     isFresh(indexedResult.lastScannedAt, env.premiumFreshnessHours);
 
   const mode = resolveMode({
-    planTier: input.planTier ?? "free",
+    planTier,
     requestedMode: query.mode,
     accessTier,
     hasIndexedCoverage: indexedResult.coverageCount > 0,
@@ -41,8 +75,9 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
   });
 
   if (mode === "demo") {
-    return buildSessionFromBusinesses({
+    const session = await buildSessionFromBusinesses({
       mode,
+      planTier,
       accessTier,
       userId: input.userId ?? null,
       query,
@@ -51,15 +86,22 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
       liveScanLimit,
       sourceDetail: "Explicit demo mode is active. These results are sample data and are labeled separately from indexed or live results.",
       refreshedLeadCount: 0,
-      estimatedLiveCostUsd: 0
+      estimatedLiveCostUsd: 0,
+      savedLeadIds
+    });
+    return finalizeSession({
+      session,
+      leadsUsedThisMonth,
+      estimatedCostUsd: 0
     });
   }
 
   if (mode === "indexed") {
-    const indexedLeads = indexedResult.leads.map((record) => mapIndexedRecordToLead(record));
+    const indexedLeads = indexedResult.leads.map((record) => mapIndexedRecordToLead(record, savedLeadIds));
 
-    return buildScanSession({
+    const session = buildScanSession({
       mode,
+      planTier,
       accessTier,
       userId: input.userId ?? null,
       query,
@@ -77,6 +119,11 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
             ? "No indexed results are available for this market yet. Upgrade to Starter for hybrid scans when you need fresh coverage."
             : "No indexed results are available yet, and a live refresh was not requested."
     });
+    return finalizeSession({
+      session,
+      leadsUsedThisMonth,
+      estimatedCostUsd: 0
+    });
   }
 
   if (!env.enableLiveScan) {
@@ -86,9 +133,10 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
   const liveBusinesses = await searchBusinessDirectory(query);
   if (liveBusinesses.length === 0) {
     if (indexedResult.coverageCount > 0) {
-      const indexedLeads = indexedResult.leads.map((record) => mapIndexedRecordToLead(record));
-      return buildScanSession({
+      const indexedLeads = indexedResult.leads.map((record) => mapIndexedRecordToLead(record, savedLeadIds));
+      const session = buildScanSession({
         mode: "indexed",
+        planTier,
         accessTier,
         userId: input.userId ?? null,
         query,
@@ -101,34 +149,47 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
         lastScannedAt: indexedResult.lastScannedAt,
         sourceDetail: "Live refresh returned no new businesses, so the session fell back to the indexed dataset."
       });
+      await logAppEvent({
+        scope: "scan",
+        level: "warning",
+        message: "Live scan fell back to indexed results because no businesses were returned.",
+        userId: input.userId ?? null,
+        metadata: {
+          location: query.location,
+          niche: query.niche,
+          requestedMode: query.mode
+        }
+      });
+      return finalizeSession({
+        session,
+        leadsUsedThisMonth,
+        estimatedCostUsd: 0
+      });
     }
 
     throw new ScanExecutionError(`No businesses were found for ${query.niche} in ${query.location}.`);
   }
 
-  const analyzedLiveLeads = await Promise.all(
-    liveBusinesses.map((business) => analyzeBusiness({ business, mode: "live" }))
+  const analyzedLiveLeads = await mapWithConcurrency(
+    liveBusinesses,
+    2,
+    (business) => analyzeBusiness({ business, mode: "live" })
   );
+  const markedLiveLeads = analyzedLiveLeads.map((lead) => ({ ...lead, isSaved: savedLeadIds.has(lead.id) }));
 
-  const indexedRecords = analyzedLiveLeads.map(mapLeadToIndexedRecord);
+  const indexedRecords = markedLiveLeads.map(mapLeadToIndexedRecord);
   await upsertIndexedLeads(indexedRecords);
-  await logUsage({
-    userId: input.userId ?? null,
-    tier: input.planTier ?? "free",
-    mode: "live",
-    queryKey: `${slugify(query.location)}::${slugify(query.niche)}`,
-    estimatedCostUsd: estimateLiveCost(analyzedLiveLeads.length)
-  });
 
-  return buildScanSession({
+  const session = buildScanSession({
     mode: "live",
+    planTier,
     accessTier,
     userId: input.userId ?? null,
     query,
-    leads: analyzedLiveLeads,
+    leads: markedLiveLeads,
     indexedLeadCount: indexedResult.coverageCount,
-    refreshedLeadCount: analyzedLiveLeads.length,
-    estimatedLiveCostUsd: estimateLiveCost(analyzedLiveLeads.length),
+    refreshedLeadCount: markedLiveLeads.length,
+    estimatedLiveCostUsd: estimateLiveCost(markedLiveLeads.length),
     liveScansThisMonth: liveScansThisMonth + 1,
     liveScanLimit,
     lastScannedAt: new Date().toISOString(),
@@ -136,6 +197,11 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
       indexedResult.coverageCount > 0
         ? "A premium live refresh was run because the cached market was stale or thin. Fresh results were merged back into the indexed store."
         : "A premium live scan fetched a new market and stored the analyzed results for future indexed reuse."
+  });
+  return finalizeSession({
+    session,
+    leadsUsedThisMonth,
+    estimatedCostUsd: estimateLiveCost(markedLiveLeads.length)
   });
 }
 
@@ -254,7 +320,7 @@ async function analyzeBusiness({
     businessName: business.businessName,
     niche: business.niche,
     city: business.location,
-    region: inferRegionFromLocation(business.location),
+    region: inferRegionFromAddress(business.address, business.location),
     phone: business.phone,
     website: business.website,
     address: business.address,
@@ -296,6 +362,7 @@ async function analyzeBusiness({
 
 async function buildSessionFromBusinesses({
   mode,
+  planTier,
   accessTier,
   userId,
   query,
@@ -304,9 +371,11 @@ async function buildSessionFromBusinesses({
   liveScanLimit,
   sourceDetail,
   refreshedLeadCount,
-  estimatedLiveCostUsd
+  estimatedLiveCostUsd,
+  savedLeadIds
 }: {
   mode: ScanMode;
+  planTier: NonNullable<SearchInput["planTier"]>;
   accessTier: ScanAccessTier;
   userId: string | null;
   query: ScanQuery;
@@ -331,11 +400,16 @@ async function buildSessionFromBusinesses({
   sourceDetail: string;
   refreshedLeadCount: number;
   estimatedLiveCostUsd: number;
+  savedLeadIds: Set<string>;
 }) {
-  const leads = await Promise.all(businesses.map((business) => analyzeBusiness({ business, mode })));
+  const leads = (await Promise.all(businesses.map((business) => analyzeBusiness({ business, mode })))).map((lead) => ({
+    ...lead,
+    isSaved: savedLeadIds.has(lead.id)
+  }));
 
   return buildScanSession({
     mode,
+    planTier,
     accessTier,
     userId,
     query,
@@ -352,6 +426,7 @@ async function buildSessionFromBusinesses({
 
 function buildScanSession({
   mode,
+  planTier,
   accessTier,
   userId,
   query,
@@ -365,6 +440,7 @@ function buildScanSession({
   sourceDetail
 }: {
   mode: ScanMode;
+  planTier: NonNullable<SearchInput["planTier"]>;
   accessTier: ScanAccessTier;
   userId: string | null;
   query: ScanQuery;
@@ -389,9 +465,10 @@ function buildScanSession({
   const now = new Date().toISOString();
 
   return {
-    id: `${slugify(query.location)}-${slugify(query.niche)}-${mode}`,
+    id: randomUUID(),
     mode,
     accessTier,
+    planTier,
     userId,
     niche: query.niche,
     location: query.location,
@@ -486,7 +563,15 @@ function resolveMode(input: {
       return input.liveScansThisMonth >= input.liveScanLimit ? "indexed" : "live";
     }
 
-    return input.hasIndexedCoverage || input.liveScansThisMonth >= input.liveScanLimit ? "indexed" : "live";
+    if (input.hasFreshIndexedCoverage) {
+      return "indexed";
+    }
+
+    if (input.liveScansThisMonth >= input.liveScanLimit) {
+      return "indexed";
+    }
+
+    return "live";
   }
 
   if (input.requestedMode === "indexed") {
@@ -511,7 +596,7 @@ function resolveMode(input: {
   return "live";
 }
 
-function mapIndexedRecordToLead(record: IndexedLeadRecord): Lead {
+function mapIndexedRecordToLead(record: IndexedLeadRecord, savedLeadIds?: Set<string>): Lead {
   const issueLabels = record.issueTags.map((issue) => readableIssueLabel(issue));
   return {
     id: record.id,
@@ -548,7 +633,8 @@ function mapIndexedRecordToLead(record: IndexedLeadRecord): Lead {
     lastScannedAt: record.lastScannedAt,
     sourceMode: record.sourceMode,
     confidence: record.confidence,
-    websiteLastAnalyzedAt: record.updatedAt
+    websiteLastAnalyzedAt: record.updatedAt,
+    isSaved: savedLeadIds?.has(record.id) ?? false
   };
 }
 
@@ -561,7 +647,7 @@ function mapLeadToIndexedRecord(lead: Lead): IndexedLeadRecord {
     city: lead.city,
     region: lead.region,
     location: lead.location,
-    country: inferCountryFromLocation(lead.location),
+    country: inferCountryFromAddress(lead.address, lead.location),
     address: lead.address,
     phone: lead.phone,
     website: lead.website,
@@ -634,15 +720,34 @@ function estimateLiveCost(resultCount: number) {
   return Number((0.04 * resultCount).toFixed(2));
 }
 
-function inferRegionFromLocation(location: string) {
-  const normalized = slugify(location);
-  if (normalized === "seattle") return "Washington";
-  if (normalized === "toronto") return "Ontario";
-  return "British Columbia";
+function inferRegionFromAddress(address: string, fallbackLocation: string) {
+  const parts = address
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length >= 2) {
+    return parts.at(-2) ?? fallbackLocation;
+  }
+
+  return fallbackLocation;
 }
 
-function inferCountryFromLocation(location: string) {
-  return slugify(location) === "seattle" ? "United States" : "Canada";
+function inferCountryFromAddress(address: string, fallbackLocation: string) {
+  const parts = address
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  const country = parts.at(-1);
+  if (country && country.length > 2) {
+    return country;
+  }
+
+  const normalized = slugify(fallbackLocation);
+  if (normalized.includes("seattle")) return "United States";
+  if (normalized.includes("toronto") || normalized.includes("vancouver")) return "Canada";
+  return "Unknown";
 }
 
 function readableIssueLabel(issue: string) {
@@ -658,4 +763,123 @@ function suggestPitchAngle(opportunityType: string, issues: string[]) {
     return `${opportunityType} around ${firstIssue.toLowerCase()}`;
   }
   return opportunityType;
+}
+
+async function mapWithConcurrency<TInput, TOutput>(
+  items: TInput[],
+  concurrency: number,
+  mapper: (item: TInput) => Promise<TOutput>
+) {
+  const results: TOutput[] = new Array(items.length);
+  let index = 0;
+
+  async function worker() {
+    while (index < items.length) {
+      const currentIndex = index;
+      index += 1;
+      results[currentIndex] = await mapper(items[currentIndex]);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.max(1, Math.min(concurrency, items.length)) }, () => worker())
+  );
+
+  return results;
+}
+
+async function finalizeSession(input: {
+  session: ScanSession;
+  leadsUsedThisMonth: number;
+  estimatedCostUsd: number;
+}) {
+  const limitedSession = applyLeadAllowance(input.session, input.leadsUsedThisMonth);
+  const persisted = await persistScanSession(limitedSession);
+
+  await logUsage({
+    userId: persisted.userId,
+    tier: persisted.planTier,
+    mode: persisted.mode,
+    queryKey: `${slugify(persisted.location)}::${slugify(persisted.niche)}`,
+    estimatedCostUsd: input.estimatedCostUsd,
+    leadCount: persisted.leads.length
+  });
+
+  await logAppEvent({
+    scope: "scan",
+    level: "info",
+    message: "Scan session persisted successfully.",
+    userId: persisted.userId,
+    metadata: {
+      sessionId: persisted.id,
+      mode: persisted.mode,
+      planTier: persisted.planTier,
+      leadCount: persisted.leads.length,
+      estimatedLiveCostUsd: persisted.sourceSummary.estimatedLiveCostUsd
+    }
+  });
+
+  return persisted;
+}
+
+function applyLeadAllowance(session: ScanSession, leadsUsedThisMonth: number) {
+  const monthlyLeadLimit = getLeadsLimitForTier(session.planTier);
+  if (!Number.isFinite(monthlyLeadLimit)) {
+    return session;
+  }
+
+  const remaining = Math.max(monthlyLeadLimit - leadsUsedThisMonth, 0);
+  if (remaining >= session.leads.length) {
+    return session;
+  }
+
+  const trimmedLeads = session.leads.slice(0, remaining);
+  const highPriority = trimmedLeads.filter((lead) => lead.leadScore >= 60).length;
+  const averageScore = trimmedLeads.reduce((sum, lead) => sum + lead.leadScore, 0) / Math.max(trimmedLeads.length, 1);
+  const topIssueLabels = getTopIssueLabels(trimmedLeads);
+  const recommendation = trimmedLeads[0]?.recommendedPitchAngle ?? session.summary.recommendation;
+  const generatedPitch = trimmedLeads[0]?.pitch.emailPitch ?? session.summary.generatedPitch;
+
+  return {
+    ...session,
+    leads: trimmedLeads,
+    sourceSummary: {
+      ...session.sourceSummary,
+      detail:
+        trimmedLeads.length < session.leads.length
+          ? `${session.sourceSummary.detail} Results were capped to the remaining included leads on this month's ${session.planTier} plan.`
+          : session.sourceSummary.detail
+    },
+    summary: {
+      scanned: trimmedLeads.length,
+      highPriority,
+      averageScore: Number(averageScore.toFixed(1)),
+      topIssueLabels,
+      recommendation,
+      generatedPitch
+    },
+    issueCounts: deriveIssueCounts(trimmedLeads),
+    pitchContext: {
+      generatedPitch,
+      recommendation,
+      topOpportunityType: trimmedLeads[0]?.opportunityType
+    },
+    mapMarkers: trimmedLeads
+      .filter((lead) => Number.isFinite(lead.coordinates.latitude) && Number.isFinite(lead.coordinates.longitude))
+      .map((lead) => ({
+        id: lead.id,
+        businessName: lead.businessName,
+        latitude: lead.coordinates.latitude,
+        longitude: lead.coordinates.longitude,
+        score: lead.leadScore,
+        sourceMode: lead.sourceMode
+      })),
+    isEmpty: trimmedLeads.length === 0,
+    emptyStateTitle: trimmedLeads.length === 0 ? "No included leads remaining this month" : session.emptyStateTitle,
+    emptyStateMessage:
+      trimmedLeads.length === 0
+        ? `You have already used the included leads on the ${session.planTier} plan for this month. Upgrade to continue scanning.`
+        : session.emptyStateMessage,
+    updatedAt: new Date().toISOString()
+  };
 }

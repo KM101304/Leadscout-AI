@@ -11,7 +11,7 @@ import { Lead } from "@/lib/types";
 type SortKey = "businessName" | "leadScore" | "reviewCount";
 type ViewMode = "table" | "map";
 
-export function LeadTable({ leads }: { leads: Lead[] }) {
+export function LeadTable({ leads, sessionId }: { leads: Lead[]; sessionId: string }) {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [focusedLeadId, setFocusedLeadId] = useState<string | null>(leads[0]?.id ?? null);
   const [expandedLeadId, setExpandedLeadId] = useState<string | null>(leads[0]?.id ?? null);
@@ -61,7 +61,11 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
             <div className="results-workspace__actions">
               <p className="text-sm text-slate-400">{filteredLeads.length} matching leads</p>
               {selectedLeads.length > 0 ? (
-                <ExportButton leads={selectedLeads} filename="leadscout-selected-leads.csv" />
+                <ExportButton
+                  sessionId={sessionId}
+                  leadIds={selectedLeads.map((lead) => lead.id)}
+                  filename="leadscout-selected-leads.csv"
+                />
               ) : null}
             </div>
           </div>
@@ -338,7 +342,7 @@ export function LeadTable({ leads }: { leads: Lead[] }) {
         </div>
       </section>
 
-      {selectedLead ? <LeadDetails lead={selectedLead} onClose={() => setSelectedLead(null)} /> : null}
+      {selectedLead ? <LeadDetails lead={selectedLead} sessionId={sessionId} onClose={() => setSelectedLead(null)} /> : null}
     </>
   );
 }

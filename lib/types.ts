@@ -82,6 +82,7 @@ export interface Lead {
   sourceMode: ScanMode;
   confidence: number;
   websiteLastAnalyzedAt?: string;
+  isSaved?: boolean;
 }
 
 export interface DirectoryBusiness {
@@ -162,6 +163,7 @@ export interface ScanSession {
   id: string;
   mode: ScanMode;
   accessTier: ScanAccessTier;
+  planTier: PlanTier;
   userId: string | null;
   niche: string;
   location: string;
@@ -189,6 +191,39 @@ export interface ScanSession {
   };
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SavedLeadRecord {
+  id: string;
+  userId: string;
+  leadId: string;
+  notes: string;
+  status: Lead["status"];
+  createdAt: string;
+  updatedAt: string;
+  lead: Lead;
+}
+
+export interface ExportHistoryRecord {
+  id: string;
+  userId: string;
+  scanSessionId: string;
+  name: string;
+  exportType: "csv";
+  leadCount: number;
+  leadIds: string[];
+  status: "ready" | "queued" | "failed";
+  createdAt: string;
+}
+
+export interface AppEventLog {
+  id: string;
+  scope: string;
+  level: "info" | "warning" | "error";
+  message: string;
+  userId?: string | null;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
 }
 
 export interface IndexedLeadRecord {

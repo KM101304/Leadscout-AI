@@ -284,8 +284,27 @@ export function getLeadsLimitForTier(tier: PlanTier) {
   return match ? Number(match[0]) : 999999;
 }
 
+export function getEffectivePlanTier(subscription: BillingSubscription | null, fallbackTier: PlanTier = "free"): PlanTier {
+  if (!subscription) {
+    return fallbackTier;
+  }
+
+  if (subscription.status === "active") {
+    return subscription.planTier;
+  }
+
+  return "free";
+}
+
 export function isBillingConfigured() {
-  return Boolean(env.stripeSecretKey) && Boolean(env.stripePublishableKey) && Boolean(env.stripeWebhookSecret);
+  return (
+    Boolean(env.stripeSecretKey) &&
+    Boolean(env.stripePublishableKey) &&
+    Boolean(env.stripeWebhookSecret) &&
+    Boolean(env.stripeStarterPriceId) &&
+    Boolean(env.stripeProPriceId) &&
+    Boolean(env.stripeAgencyPriceId)
+  );
 }
 
 function normalizeStripeStatus(status: Stripe.Subscription.Status): string {

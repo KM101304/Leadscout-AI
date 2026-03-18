@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/AppShell";
 import { BillingActionButton } from "@/components/BillingActionButton";
 import { getViewer } from "@/lib/auth";
+import { env } from "@/lib/env";
 import { getBillingSubscriptionByUserId, isBillingConfigured } from "@/services/billingService";
 
 export default async function SettingsPage() {
@@ -19,7 +20,7 @@ export default async function SettingsPage() {
           <div className="mt-4 app-card-grid-tight">
             <div className="subtle-panel rounded-[18px] section-subtle">
               <p className="meta-text text-slate-400">Email notifications</p>
-              <p className="mt-2 text-sm text-white">Enabled for saved leads and export updates</p>
+              <p className="mt-2 text-sm text-white">Not implemented yet</p>
             </div>
             <div className="subtle-panel rounded-[18px] section-subtle">
               <p className="meta-text text-slate-400">Default export format</p>
@@ -27,7 +28,7 @@ export default async function SettingsPage() {
             </div>
             <div className="subtle-panel rounded-[18px] section-subtle">
               <p className="meta-text text-slate-400">Workspace mode</p>
-              <p className="mt-2 text-sm text-white">Solo operator</p>
+              <p className="mt-2 text-sm text-white">{viewer.subscription.tier === "agency" ? "Team workspace" : "Single workspace"}</p>
             </div>
           </div>
         </section>
@@ -36,11 +37,11 @@ export default async function SettingsPage() {
           <div className="mt-4 app-card-grid-tight">
             <div className="subtle-panel rounded-[18px] section-subtle">
               <p className="meta-text text-slate-400">Google Places</p>
-              <p className="mt-2 text-sm text-white">Ready when the API project is enabled</p>
+              <p className="mt-2 text-sm text-white">{env.googlePlacesApiKey ? "Configured" : "Missing GOOGLE_PLACES_API_KEY"}</p>
             </div>
             <div className="subtle-panel rounded-[18px] section-subtle">
               <p className="meta-text text-slate-400">OpenAI pitch generation</p>
-              <p className="mt-2 text-sm text-white">Configured</p>
+              <p className="mt-2 text-sm text-white">{env.openAiApiKey ? "Configured" : "Fallback copy only"}</p>
             </div>
             <div className="subtle-panel rounded-[18px] section-subtle">
               <p className="meta-text text-slate-400">Stripe billing</p>

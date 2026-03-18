@@ -12,9 +12,53 @@ const statuses = [
   { key: "meeting-booked", label: "Meeting booked" }
 ] as const;
 
-export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void }) {
+export function LeadDetails({ lead, sessionId, onClose }: { lead: Lead; sessionId?: string; onClose: () => void }) {
   const [status, setStatus] = useState(lead.status);
   const [notes, setNotes] = useState(lead.notes);
+  const [isSaved, setIsSaved] = useState(Boolean(lead.isSaved));
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const persistSavedLead = async (nextSaved: boolean) => {
+    setIsSaving(true);
+    setSaveMessage("");
+
+    try {
+      if (!nextSaved) {
+        const response = await fetch(`/api/saved-leads?leadId=${encodeURIComponent(lead.id)}`, { method: "DELETE" });
+        if (!response.ok) {
+          throw new Error("Unable to remove saved lead.");
+        }
+        setIsSaved(false);
+        setSaveMessage("Lead removed from saved list.");
+        return;
+      }
+
+      const response = await fetch("/api/saved-leads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          leadId: lead.id,
+          sessionId,
+          status,
+          notes
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to save lead.");
+      }
+
+      setIsSaved(true);
+      setSaveMessage("Lead saved successfully.");
+    } catch (error) {
+      setSaveMessage(error instanceof Error ? error.message : "Unable to save lead.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <aside className="slide-in-panel fixed inset-0 z-50 overflow-y-auto bg-slate-950/88 p-3 backdrop-blur-xl md:inset-y-0 md:left-auto md:right-0 md:max-w-2xl md:p-6">
@@ -105,6 +149,27 @@ export function LeadDetails({ lead, onClose }: { lead: Lead; onClose: () => void
                 </button>
               ))}
             </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => persistSavedLead(!isSaved)}
+                className="glass-button rounded-full border border-white/8 px-4 py-2 text-[14px] text-white"
+                disabled={isSaving}
+              >
+                {isSaving ? "Saving..." : isSaved ? "Remove from saved" : "Save lead"}
+              </button>
+              {isSaved ? (
+                <button
+                  type="button"
+                  onClick={() => persistSavedLead(true)}
+                  className="glass-button rounded-full border border-white/8 px-4 py-2 text-[14px] text-white"
+                  disabled={isSaving}
+                >
+                  Save notes and status
+                </button>
+              ) : null}
+            </div>
+            {saveMessage ? <p className="mt-3 text-sm text-slate-300">{saveMessage}</p> : null}
           </section>
 
           <section className="subtle-panel rounded-[18px] section-block">

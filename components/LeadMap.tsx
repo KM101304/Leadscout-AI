@@ -183,7 +183,7 @@ export function LeadMap({
                 <p className="eyebrow">Lead geography</p>
                 <h3 className="mt-2 text-xl font-semibold text-white">Market coverage map</h3>
               </div>
-              <Badge tone="info">Mapbox ready</Badge>
+              <Badge tone="info">{token ? "Fallback map" : "Mapbox token missing"}</Badge>
             </div>
             <div className="lead-map-fallback__canvas">
               {fallbackPositions.map(({ lead, x, y }) => (

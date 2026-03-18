@@ -9,12 +9,14 @@ export function SearchForm({
   initialLocation = "",
   initialNiche = "",
   compact = false,
-  tier = "free"
+  tier = "free",
+  isAuthenticated = true
 }: {
   initialLocation?: string;
   initialNiche?: string;
   compact?: boolean;
   tier?: PlanTier;
+  isAuthenticated?: boolean;
 }) {
   const router = useRouter();
   const [location, setLocation] = useState(initialLocation);
@@ -25,13 +27,22 @@ export function SearchForm({
   const [businessSize, setBusinessSize] = useState("any");
   const [mode, setMode] = useState<"auto" | "indexed" | "live">(tier === "free" ? "indexed" : "auto");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!location.trim() || !niche.trim()) {
       return;
     }
+
+    if (!isAuthenticated) {
+      router.push(`/login?next=${encodeURIComponent("/dashboard")}`);
+      return;
+    }
+
     setIsLoading(true);
+    setError("");
+
     const params = new URLSearchParams({
       location: location.trim(),
       niche: niche.trim(),
@@ -41,7 +52,20 @@ export function SearchForm({
       businessSize,
       mode: tier === "free" ? "indexed" : mode
     });
-    router.push(`/results?${params.toString()}`);
+
+    try {
+      const response = await fetch(`/api/search?${params.toString()}`, { cache: "no-store" });
+      const payload = (await response.json()) as { id?: string; error?: string };
+
+      if (!response.ok || !payload.id) {
+        throw new Error(payload.error || "Unable to create a scan session.");
+      }
+
+      router.push(`/results?sessionId=${encodeURIComponent(payload.id)}`);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Unable to create a scan session.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -165,6 +189,7 @@ export function SearchForm({
             {isLoading ? (
               <div className="progress-shine mt-4 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-sky-400" />
             ) : null}
+            {error ? <p className="mt-3 text-sm text-rose-200">{error}</p> : null}
           </div>
           <button
             type="submit"
@@ -172,7 +197,7 @@ export function SearchForm({
             className="cta-primary glass-button inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 md:h-[52px] md:text-base lg:w-auto"
           >
             <Search className="h-4 w-4" />
-            {isLoading ? "Building scan session..." : tier === "free" ? "Search indexed leads" : "Run scan"}
+            {isLoading ? "Building scan session..." : isAuthenticated ? (tier === "free" ? "Search indexed leads" : "Run scan") : "Login to run a scan"}
           </button>
         </div>
       </div>

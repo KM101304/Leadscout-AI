@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getViewer } from "@/lib/auth";
+import { logAppEvent } from "@/services/indexedLeadRepository";
 import { createPortalSession } from "@/services/billingService";
 
 export async function POST(request: NextRequest) {
@@ -14,9 +15,22 @@ export async function POST(request: NextRequest) {
       returnUrl: `${request.nextUrl.origin}/settings`
     });
 
+    await logAppEvent({
+      scope: "stripe_portal",
+      level: "info",
+      message: "Stripe billing portal session created.",
+      userId: viewer.user.id
+    });
+
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to open the billing portal.";
+    await logAppEvent({
+      scope: "stripe_portal",
+      level: "error",
+      message,
+      userId: viewer.user.id
+    });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getViewer } from "@/lib/auth";
+import { logAppEvent } from "@/services/indexedLeadRepository";
 import { createCheckoutSession } from "@/services/billingService";
 
 export async function POST(request: NextRequest) {
@@ -23,9 +24,25 @@ export async function POST(request: NextRequest) {
       cancelUrl: `${origin}/pricing?checkout=cancelled`
     });
 
+    await logAppEvent({
+      scope: "stripe_checkout",
+      level: "info",
+      message: "Stripe checkout session created.",
+      userId: viewer.user.id,
+      metadata: {
+        planTier: body.planTier
+      }
+    });
+
     return NextResponse.json({ url: session.url });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to start checkout.";
+    await logAppEvent({
+      scope: "stripe_checkout",
+      level: "error",
+      message,
+      userId: viewer.user.id
+    });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

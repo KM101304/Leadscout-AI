@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { env } from "@/lib/env";
 import { getStripe } from "@/lib/stripe";
+import { logAppEvent } from "@/services/indexedLeadRepository";
 import { markInvoiceFailed, markInvoicePaid, syncSubscriptionFromStripe } from "@/services/billingService";
 
 export async function POST(request: Request) {
@@ -23,6 +24,12 @@ export async function POST(request: Request) {
     event = stripe.webhooks.constructEvent(payload, signature, env.stripeWebhookSecret);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Webhook verification failed.";
+    await logAppEvent({
+      scope: "stripe_webhook",
+      level: "error",
+      message,
+      metadata: { stage: "verify" }
+    });
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
@@ -56,9 +63,22 @@ export async function POST(request: Request) {
         break;
     }
 
+    await logAppEvent({
+      scope: "stripe_webhook",
+      level: "info",
+      message: "Stripe webhook processed successfully.",
+      metadata: { eventType: event.type }
+    });
+
     return NextResponse.json({ received: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Webhook processing failed.";
+    await logAppEvent({
+      scope: "stripe_webhook",
+      level: "error",
+      message,
+      metadata: { eventType: event.type }
+    });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
