@@ -52,6 +52,14 @@ export async function queryIndexedLeads(query: ScanQuery) {
     }
   }
 
+  if (hasSupabaseRestAdmin()) {
+    try {
+      return await queryIndexedLeadsViaRest(query);
+    } catch (error) {
+      console.warn("[indexed_leads] Supabase REST fallback failed for queryIndexedLeads.", error);
+    }
+  }
+
   const store = await readStore();
   const marketKey = buildMarketKey(query);
   const results = applyIndexedFilters(store.leads, query);
@@ -169,6 +177,15 @@ export async function logUsage(input: Omit<UsageLogRecord, "id" | "createdAt">) 
     }
   }
 
+  if (hasSupabaseRestAdmin()) {
+    try {
+      await insertUsageLogViaRest(input);
+      return;
+    } catch (error) {
+      console.warn("[scan_usage_logs] Supabase REST fallback failed for logUsage.", error);
+    }
+  }
+
   await appendUsageLogToStore(input);
 }
 
@@ -228,6 +245,20 @@ export async function countMonthlyLeadUsage(userId: string | null) {
 
 export async function persistScanSession(session: ScanSession) {
   if (!hasDatabase()) {
+    if (hasSupabaseRestAdmin()) {
+      try {
+        const restResult = await insertScanSessionViaRest(session);
+        return {
+          ...session,
+          id: restResult.id,
+          createdAt: restResult.createdAt,
+          updatedAt: restResult.updatedAt
+        };
+      } catch (error) {
+        console.warn("[scan_sessions] Supabase REST fallback failed for persistScanSession.", error);
+      }
+    }
+
     await persistScanSessionToStore(session);
     return session;
   }
@@ -243,6 +274,21 @@ export async function persistScanSession(session: ScanSession) {
     };
   } catch (error) {
     console.warn("[scan_sessions] Falling back to local store for persistScanSession.", error);
+
+    if (hasSupabaseRestAdmin()) {
+      try {
+        const restResult = await insertScanSessionViaRest(session);
+        return {
+          ...session,
+          id: restResult.id,
+          createdAt: restResult.createdAt,
+          updatedAt: restResult.updatedAt
+        };
+      } catch (restError) {
+        console.warn("[scan_sessions] Supabase REST fallback failed for persistScanSession.", restError);
+      }
+    }
+
     await persistScanSessionToStore(session);
     return session;
   }
@@ -253,32 +299,45 @@ export async function ensureLegacyUserRecord(input: {
   email: string | null;
   planTier: PlanTier;
 }) {
-  if (!hasDatabase()) {
-    return;
+  if (hasDatabase()) {
+    try {
+      const db = getDb();
+      await db.query(
+        `insert into users (id, email, plan_tier)
+         values ($1, $2, $3)
+         on conflict (id) do update set
+           email = excluded.email,
+           plan_tier = excluded.plan_tier`,
+        [input.userId, input.email ?? `${input.userId}@leadscout.local`, input.planTier]
+      );
+      return;
+    } catch (error) {
+      const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+      if (!message.includes('relation "users" does not exist') && !message.includes("column") && !message.includes("schema cache")) {
+        console.warn("[users] Unable to ensure legacy public.users record.", error);
+      }
+    }
   }
 
-  try {
-    const db = getDb();
-    await db.query(
-      `insert into users (id, email, plan_tier)
-       values ($1, $2, $3)
-       on conflict (id) do update set
-         email = excluded.email,
-         plan_tier = excluded.plan_tier`,
-      [input.userId, input.email ?? `${input.userId}@leadscout.local`, input.planTier]
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
-    if (message.includes('relation "users" does not exist') || message.includes("column") || message.includes("schema cache")) {
-      return;
+  if (hasSupabaseRestAdmin()) {
+    try {
+      await ensureLegacyUserRecordViaRest(input);
+    } catch (error) {
+      console.warn("[users] Supabase REST fallback failed for legacy public.users record.", error);
     }
-
-    console.warn("[users] Unable to ensure legacy public.users record.", error);
   }
 }
 
 export async function getPersistedScanSession(sessionId: string, userId: string | null) {
   if (!hasDatabase()) {
+    if (hasSupabaseRestAdmin()) {
+      try {
+        return await selectPersistedScanSessionViaRest(sessionId, userId);
+      } catch (error) {
+        console.warn("[scan_sessions] Supabase REST fallback failed for getPersistedScanSession.", error);
+      }
+    }
+
     const store = await readStore();
     return store.scanSessions.find((session) => session.id === sessionId && session.userId === userId) ?? null;
   }
@@ -297,6 +356,15 @@ export async function getPersistedScanSession(sessionId: string, userId: string 
     return mapLegacyScanSessionRow(result.row, leads);
   } catch (error) {
     console.warn("[scan_sessions] Falling back to local store for getPersistedScanSession.", error);
+
+    if (hasSupabaseRestAdmin()) {
+      try {
+        return await selectPersistedScanSessionViaRest(sessionId, userId);
+      } catch (restError) {
+        console.warn("[scan_sessions] Supabase REST fallback failed for getPersistedScanSession.", restError);
+      }
+    }
+
     const store = await readStore();
     return store.scanSessions.find((session) => session.id === sessionId && session.userId === userId) ?? null;
   }
@@ -809,6 +877,36 @@ function hasDatabase() {
   return Boolean(env.supabaseDatabaseUrl);
 }
 
+function hasSupabaseRestAdmin() {
+  return Boolean(env.supabaseUrl && env.supabaseServiceRoleKey);
+}
+
+function getSupabaseRestHeaders(options?: {
+  contentType?: boolean;
+  returnRepresentation?: boolean;
+  resolutionMergeDuplicates?: boolean;
+}) {
+  const headers = {
+    apikey: env.supabaseServiceRoleKey,
+    Authorization: `Bearer ${env.supabaseServiceRoleKey}`
+  } as Record<string, string>;
+
+  if (options?.contentType) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  const preferValues = [
+    options?.returnRepresentation ? "return=representation" : "",
+    options?.resolutionMergeDuplicates ? "resolution=merge-duplicates" : ""
+  ].filter(Boolean);
+
+  if (preferValues.length) {
+    headers.Prefer = preferValues.join(",");
+  }
+
+  return headers;
+}
+
 async function queryIndexedLeadsFromDb(query: ScanQuery) {
   const db = getDb();
   const result = await db.query<{
@@ -853,6 +951,43 @@ async function queryIndexedLeadsFromDb(query: ScanQuery) {
     query
   );
 
+  const lastScannedAt = leads.reduce<string | null>((current, lead) => {
+    if (!current || lead.lastScannedAt > current) {
+      return lead.lastScannedAt;
+    }
+    return current;
+  }, null);
+
+  return {
+    leads,
+    marketKey: buildMarketKey(query),
+    lastScannedAt,
+    coverageCount: leads.length
+  };
+}
+
+async function queryIndexedLeadsViaRest(query: ScanQuery) {
+  const params = new URLSearchParams({
+    select:
+      "id,business_name,niche,city,region,location,country,address,phone,website,rating,review_count,lat,lng,place_source,website_status,issue_tags,opportunity_score,opportunity_type,recommended_pitch_angle,analysis_summary,source_mode,confidence,signals,last_scanned_at,created_at,updated_at",
+    niche: `ilike.${query.niche}`,
+    location: `ilike.${query.location}`,
+    order: "opportunity_score.desc"
+  });
+
+  const response = await fetch(`${env.supabaseUrl}/rest/v1/indexed_leads?${params.toString()}`, {
+    headers: getSupabaseRestHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const rows = (await response.json()) as Array<Parameters<typeof rowToIndexedLead>[0]>;
+  const leads = applyIndexedFilters(
+    rows.map((row) => rowToIndexedLead(row)),
+    query
+  );
   const lastScannedAt = leads.reduce<string | null>((current, lead) => {
     if (!current || lead.lastScannedAt > current) {
       return lead.lastScannedAt;
@@ -1112,6 +1247,29 @@ function getStorePath() {
   return path.resolve(process.cwd(), env.indexedDataFile);
 }
 
+async function ensureLegacyUserRecordViaRest(input: {
+  userId: string;
+  email: string | null;
+  planTier: PlanTier;
+}) {
+  const response = await fetch(`${env.supabaseUrl}/rest/v1/users`, {
+    method: "POST",
+    headers: getSupabaseRestHeaders({ contentType: true, resolutionMergeDuplicates: true }),
+    body: JSON.stringify({
+      id: input.userId,
+      email: input.email ?? `${input.userId}@leadscout.local`,
+      plan_tier: input.planTier
+    })
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    if (!message.toLowerCase().includes("schema cache") && !message.toLowerCase().includes('relation "users" does not exist')) {
+      throw new Error(message);
+    }
+  }
+}
+
 async function insertUsageLog(input: Omit<UsageLogRecord, "id" | "createdAt">) {
   const db = getDb();
 
@@ -1145,6 +1303,46 @@ async function appendUsageLogToStore(input: Omit<UsageLogRecord, "id" | "created
     await writeStore(store);
   } catch (error) {
     console.warn("[scan_usage_logs] Unable to persist local fallback usage log.", error);
+  }
+}
+
+async function insertUsageLogViaRest(input: Omit<UsageLogRecord, "id" | "createdAt">) {
+  const response = await fetch(`${env.supabaseUrl}/rest/v1/scan_usage_logs`, {
+    method: "POST",
+    headers: getSupabaseRestHeaders({ contentType: true }),
+    body: JSON.stringify({
+      user_id: input.userId,
+      mode: input.mode,
+      tier: input.tier,
+      query_key: input.queryKey,
+      estimated_cost_usd: input.estimatedCostUsd,
+      lead_count: input.leadCount
+    })
+  });
+
+  if (response.ok) {
+    return;
+  }
+
+  const errorText = await response.text();
+  if (!errorText.toLowerCase().includes("lead_count")) {
+    throw new Error(errorText);
+  }
+
+  const legacyResponse = await fetch(`${env.supabaseUrl}/rest/v1/scan_usage_logs`, {
+    method: "POST",
+    headers: getSupabaseRestHeaders({ contentType: true }),
+    body: JSON.stringify({
+      user_id: input.userId,
+      mode: input.mode,
+      tier: input.tier,
+      query_key: input.queryKey,
+      estimated_cost_usd: input.estimatedCostUsd
+    })
+  });
+
+  if (!legacyResponse.ok) {
+    throw new Error(await legacyResponse.text());
   }
 }
 
@@ -1288,6 +1486,83 @@ async function insertScanSession(session: ScanSession) {
   return legacyResult;
 }
 
+async function insertScanSessionViaRest(session: ScanSession) {
+  const currentPayload = {
+    id: session.id,
+    user_id: session.userId,
+    plan_tier: session.planTier,
+    mode: session.mode,
+    access_tier: session.accessTier,
+    niche: session.niche,
+    location: session.location,
+    radius: session.radius,
+    filters: session.filters,
+    query_string: session.queryString,
+    source_summary: session.sourceSummary,
+    summary: session.summary,
+    issue_counts: session.issueCounts,
+    pitch_context: session.pitchContext,
+    leads_json: session.leads,
+    map_markers_json: session.mapMarkers,
+    usage: session.usage
+  };
+
+  let response = await fetch(`${env.supabaseUrl}/rest/v1/scan_sessions`, {
+    method: "POST",
+    headers: getSupabaseRestHeaders({ contentType: true, returnRepresentation: true }),
+    body: JSON.stringify(currentPayload)
+  });
+
+  if (response.ok) {
+    const row = ((await response.json()) as Array<{ id: string; created_at: string; updated_at: string }>)[0];
+    return {
+      id: row.id,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+
+  const errorText = await response.text();
+  if (!errorText.toLowerCase().includes("plan_tier") && !errorText.toLowerCase().includes("leads_json") && !errorText.toLowerCase().includes("map_markers_json")) {
+    throw new Error(errorText);
+  }
+
+  const legacyPayload = {
+    id: session.id,
+    user_id: session.userId,
+    mode: session.mode,
+    access_tier: session.accessTier,
+    niche: session.niche,
+    location: session.location,
+    radius: session.radius,
+    filters: session.filters,
+    query_string: session.queryString,
+    source_summary: session.sourceSummary,
+    summary: session.summary,
+    issue_counts: session.issueCounts,
+    pitch_context: session.pitchContext,
+    usage: session.usage
+  };
+
+  response = await fetch(`${env.supabaseUrl}/rest/v1/scan_sessions`, {
+    method: "POST",
+    headers: getSupabaseRestHeaders({ contentType: true, returnRepresentation: true }),
+    body: JSON.stringify(legacyPayload)
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const row = ((await response.json()) as Array<{ id: string; created_at: string; updated_at: string }>)[0];
+  await replaceLegacySessionLeadLinksViaRest(session.id, session.leads.map((lead) => lead.id));
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
 async function selectPersistedScanSession(sessionId: string, userId: string | null) {
   const db = getDb();
 
@@ -1338,6 +1613,54 @@ async function selectPersistedScanSession(sessionId: string, userId: string | nu
   );
   const row = legacyResult.rows[0];
   return row ? { kind: "legacy" as const, row } : null;
+}
+
+async function selectPersistedScanSessionViaRest(sessionId: string, userId: string | null) {
+  const currentParams = new URLSearchParams({
+    id: `eq.${sessionId}`,
+    select:
+      "id,plan_tier,mode,access_tier,user_id,niche,location,radius,filters,query_string,source_summary,summary,issue_counts,pitch_context,leads_json,map_markers_json,usage,created_at,updated_at",
+    limit: "1"
+  });
+  currentParams.set("user_id", userId ? `eq.${userId}` : "is.null");
+
+  let response = await fetch(`${env.supabaseUrl}/rest/v1/scan_sessions?${currentParams.toString()}`, {
+    headers: getSupabaseRestHeaders()
+  });
+
+  if (response.ok) {
+    const row = ((await response.json()) as PersistedScanSessionRow[])[0];
+    return row ? mapScanSessionRow(row) : null;
+  }
+
+  const currentError = await response.text();
+  if (!currentError.toLowerCase().includes("plan_tier") && !currentError.toLowerCase().includes("leads_json") && !currentError.toLowerCase().includes("map_markers_json")) {
+    throw new Error(currentError);
+  }
+
+  const legacyParams = new URLSearchParams({
+    id: `eq.${sessionId}`,
+    select:
+      "id,mode,access_tier,user_id,niche,location,radius,filters,query_string,source_summary,summary,issue_counts,pitch_context,usage,created_at,updated_at",
+    limit: "1"
+  });
+  legacyParams.set("user_id", userId ? `eq.${userId}` : "is.null");
+
+  response = await fetch(`${env.supabaseUrl}/rest/v1/scan_sessions?${legacyParams.toString()}`, {
+    headers: getSupabaseRestHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const row = ((await response.json()) as LegacyPersistedScanSessionRow[])[0];
+  if (!row) {
+    return null;
+  }
+
+  const leads = await selectLegacySessionLeadsViaRest(sessionId);
+  return mapLegacyScanSessionRow(row, leads);
 }
 
 async function persistScanSessionToStore(session: ScanSession) {
@@ -1415,6 +1738,64 @@ async function selectLegacySessionLeads(sessionId: string) {
   );
 
   return result.rows.map((row) => mapIndexedRecordToLeadFallback(rowToIndexedLead(row)));
+}
+
+async function replaceLegacySessionLeadLinksViaRest(sessionId: string, leadIds: string[]) {
+  await fetch(`${env.supabaseUrl}/rest/v1/scan_session_leads?scan_session_id=eq.${sessionId}`, {
+    method: "DELETE",
+    headers: getSupabaseRestHeaders()
+  });
+
+  if (!leadIds.length) {
+    return;
+  }
+
+  const response = await fetch(`${env.supabaseUrl}/rest/v1/scan_session_leads`, {
+    method: "POST",
+    headers: getSupabaseRestHeaders({ contentType: true }),
+    body: JSON.stringify(leadIds.map((leadId) => ({ scan_session_id: sessionId, lead_id: leadId })))
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+}
+
+async function selectLegacySessionLeadsViaRest(sessionId: string) {
+  const relationResponse = await fetch(
+    `${env.supabaseUrl}/rest/v1/scan_session_leads?scan_session_id=eq.${sessionId}&select=lead_id`,
+    {
+      headers: getSupabaseRestHeaders()
+    }
+  );
+
+  if (!relationResponse.ok) {
+    throw new Error(await relationResponse.text());
+  }
+
+  const relations = (await relationResponse.json()) as Array<{ lead_id: string }>;
+  const leadIds = relations.map((entry) => entry.lead_id);
+  if (!leadIds.length) {
+    return [];
+  }
+
+  const params = new URLSearchParams({
+    select:
+      "id,business_name,niche,city,region,location,country,address,phone,website,rating,review_count,lat,lng,place_source,website_status,issue_tags,opportunity_score,opportunity_type,recommended_pitch_angle,analysis_summary,source_mode,confidence,signals,last_scanned_at,created_at,updated_at",
+    id: `in.(${leadIds.join(",")})`,
+    order: "opportunity_score.desc"
+  });
+
+  const leadResponse = await fetch(`${env.supabaseUrl}/rest/v1/indexed_leads?${params.toString()}`, {
+    headers: getSupabaseRestHeaders()
+  });
+
+  if (!leadResponse.ok) {
+    throw new Error(await leadResponse.text());
+  }
+
+  const rows = (await leadResponse.json()) as Array<Parameters<typeof rowToIndexedLead>[0]>;
+  return rows.map((row) => mapIndexedRecordToLeadFallback(rowToIndexedLead(row)));
 }
 
 function mapIndexedRecordToLeadFallback(record: IndexedLeadRecord): Lead {
