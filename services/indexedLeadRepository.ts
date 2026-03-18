@@ -1227,9 +1227,14 @@ async function readStore() {
       exportHistory: parsed.exportHistory ?? []
     };
   } catch {
-    await ensureStoreDirectory(filePath);
-    await writeStore(defaultStore);
-    return defaultStore;
+    try {
+      await ensureStoreDirectory(filePath);
+      await writeStore(defaultStore);
+    } catch (error) {
+      console.warn("[indexed_leads] Unable to initialize local fallback store.", error);
+    }
+
+    return createEmptyStore();
   }
 }
 
@@ -1244,7 +1249,35 @@ async function ensureStoreDirectory(filePath: string) {
 }
 
 function getStorePath() {
+  if (path.isAbsolute(env.indexedDataFile)) {
+    return env.indexedDataFile;
+  }
+
+  if (isServerlessRuntime()) {
+    const relativePath = env.indexedDataFile.replace(/^[/\\]+/, "");
+    return path.join("/tmp/leadscout-ai", relativePath);
+  }
+
   return path.resolve(process.cwd(), env.indexedDataFile);
+}
+
+function isServerlessRuntime() {
+  return (
+    process.cwd().startsWith("/var/task") ||
+    Boolean(process.env.VERCEL) ||
+    Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) ||
+    Boolean(process.env.LAMBDA_TASK_ROOT)
+  );
+}
+
+function createEmptyStore(): IndexedStore {
+  return {
+    leads: [],
+    usageLogs: [],
+    scanSessions: [],
+    savedLeads: [],
+    exportHistory: []
+  };
 }
 
 async function ensureLegacyUserRecordViaRest(input: {
