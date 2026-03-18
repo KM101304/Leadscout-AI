@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getDb } from "@/lib/db";
 import { env } from "@/lib/env";
+import type { PlanTier } from "@/lib/plans";
 import {
   AppEventLog,
   ExportHistoryRecord,
@@ -247,6 +248,35 @@ export async function persistScanSession(session: ScanSession) {
   }
 }
 
+export async function ensureLegacyUserRecord(input: {
+  userId: string;
+  email: string | null;
+  planTier: PlanTier;
+}) {
+  if (!hasDatabase()) {
+    return;
+  }
+
+  try {
+    const db = getDb();
+    await db.query(
+      `insert into users (id, email, plan_tier)
+       values ($1, $2, $3)
+       on conflict (id) do update set
+         email = excluded.email,
+         plan_tier = excluded.plan_tier`,
+      [input.userId, input.email ?? `${input.userId}@leadscout.local`, input.planTier]
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+    if (message.includes('relation "users" does not exist') || message.includes("column") || message.includes("schema cache")) {
+      return;
+    }
+
+    console.warn("[users] Unable to ensure legacy public.users record.", error);
+  }
+}
+
 export async function getPersistedScanSession(sessionId: string, userId: string | null) {
   if (!hasDatabase()) {
     const store = await readStore();
@@ -255,12 +285,16 @@ export async function getPersistedScanSession(sessionId: string, userId: string 
 
   try {
     const result = await selectPersistedScanSession(sessionId, userId);
-    const row = result.rows[0];
-    if (!row) {
+    if (!result) {
       return null;
     }
 
-    return mapScanSessionRow(row);
+    if (result.kind === "current") {
+      return mapScanSessionRow(result.row);
+    }
+
+    const leads = await selectLegacySessionLeads(sessionId);
+    return mapLegacyScanSessionRow(result.row, leads);
   } catch (error) {
     console.warn("[scan_sessions] Falling back to local store for getPersistedScanSession.", error);
     const store = await readStore();
@@ -288,6 +322,10 @@ type PersistedScanSessionRow = {
   usage: ScanSession["usage"];
   created_at: string;
   updated_at: string;
+};
+
+type LegacyPersistedScanSessionRow = Omit<PersistedScanSessionRow, "plan_tier" | "leads_json" | "map_markers_json"> & {
+  usage?: ScanSession["usage"] | null;
 };
 
 function mapScanSessionRow(row: PersistedScanSessionRow): ScanSession {
@@ -322,6 +360,54 @@ function mapScanSessionRow(row: PersistedScanSessionRow): ScanSession {
     mapMarkers: row.map_markers_json,
     isEmpty: row.leads_json.length === 0,
     usage: row.usage,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  } satisfies ScanSession;
+}
+
+function mapLegacyScanSessionRow(row: LegacyPersistedScanSessionRow, leads: Lead[]): ScanSession {
+  const mapMarkers = leads
+    .filter((lead) => Number.isFinite(lead.coordinates.latitude) && Number.isFinite(lead.coordinates.longitude))
+    .map((lead) => ({
+      id: lead.id,
+      businessName: lead.businessName,
+      latitude: lead.coordinates.latitude,
+      longitude: lead.coordinates.longitude,
+      score: lead.leadScore,
+      sourceMode: lead.sourceMode
+    }));
+
+  return {
+    id: row.id,
+    mode: row.mode,
+    accessTier: row.access_tier,
+    planTier: "free",
+    userId: row.user_id,
+    niche: row.niche,
+    location: row.location,
+    radius: row.radius,
+    filters: row.filters as ScanSession["filters"],
+    queryString: row.query_string,
+    query: {
+      location: row.location,
+      niche: row.niche,
+      radius: row.radius,
+      minimumReviewCount: Number((row.filters?.minimumReviewCount as number | undefined) ?? 0),
+      websiteStatus: ((row.filters?.websiteStatus as ScanSession["filters"]["websiteStatus"]) ?? "any"),
+      businessSize: ((row.filters?.businessSize as ScanSession["filters"]["businessSize"]) ?? "any"),
+      mode: row.mode,
+      userId: row.user_id,
+      planTier: "free",
+      queryString: row.query_string
+    },
+    sourceSummary: row.source_summary,
+    leads,
+    summary: row.summary,
+    issueCounts: row.issue_counts,
+    pitchContext: row.pitch_context,
+    mapMarkers,
+    isEmpty: leads.length === 0,
+    usage: row.usage ?? { liveScansThisMonth: 0, liveScanLimit: 0 },
     createdAt: row.created_at,
     updatedAt: row.updated_at
   } satisfies ScanSession;
@@ -1121,8 +1207,10 @@ async function insertScanSession(session: ScanSession) {
     if (!isMissingColumnError(error, "plan_tier")) {
       throw error;
     }
+  }
 
-    return db.query<{ id: string; created_at: string; updated_at: string }>(
+  try {
+    return await db.query<{ id: string; created_at: string; updated_at: string }>(
       `insert into scan_sessions (
         id, user_id, mode, access_tier, niche, location, radius, filters, query_string, source_summary,
         summary, issue_counts, pitch_context, leads_json, map_markers_json, usage
@@ -1149,14 +1237,62 @@ async function insertScanSession(session: ScanSession) {
       returning id, created_at, updated_at`,
       sharedValues
     );
+  } catch (error) {
+    if (!isLegacySessionShapeError(error)) {
+      throw error;
+    }
   }
+
+  const legacyResult = await db.query<{ id: string; created_at: string; updated_at: string }>(
+    `insert into scan_sessions (
+      id, user_id, mode, access_tier, niche, location, radius, filters, query_string, source_summary,
+      summary, issue_counts, pitch_context, usage
+    ) values (
+      $1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb,$11::jsonb,$12::jsonb,$13::jsonb,$14::jsonb
+    )
+    on conflict (id) do update set
+      user_id = excluded.user_id,
+      mode = excluded.mode,
+      access_tier = excluded.access_tier,
+      niche = excluded.niche,
+      location = excluded.location,
+      radius = excluded.radius,
+      filters = excluded.filters,
+      query_string = excluded.query_string,
+      source_summary = excluded.source_summary,
+      summary = excluded.summary,
+      issue_counts = excluded.issue_counts,
+      pitch_context = excluded.pitch_context,
+      usage = excluded.usage,
+      updated_at = now()
+    returning id, created_at, updated_at`,
+    [
+      session.id,
+      session.userId,
+      session.mode,
+      session.accessTier,
+      session.niche,
+      session.location,
+      session.radius,
+      JSON.stringify(session.filters),
+      session.queryString,
+      JSON.stringify(session.sourceSummary),
+      JSON.stringify(session.summary),
+      JSON.stringify(session.issueCounts),
+      JSON.stringify(session.pitchContext),
+      JSON.stringify(session.usage)
+    ]
+  );
+
+  await replaceLegacySessionLeadLinks(db, session.id, session.leads.map((lead) => lead.id));
+  return legacyResult;
 }
 
 async function selectPersistedScanSession(sessionId: string, userId: string | null) {
   const db = getDb();
 
   try {
-    return await db.query<PersistedScanSessionRow>(
+    const result = await db.query<PersistedScanSessionRow>(
       `select id, plan_tier, mode, access_tier, user_id, niche, location, radius, filters, query_string, source_summary,
               summary, issue_counts, pitch_context, leads_json, map_markers_json, usage, created_at, updated_at
        from scan_sessions
@@ -1165,12 +1301,16 @@ async function selectPersistedScanSession(sessionId: string, userId: string | nu
        limit 1`,
       [sessionId, userId]
     );
+    const row = result.rows[0];
+    return row ? { kind: "current" as const, row } : null;
   } catch (error) {
     if (!isMissingColumnError(error, "plan_tier")) {
       throw error;
     }
+  }
 
-    return db.query<PersistedScanSessionRow>(
+  try {
+    const result = await db.query<PersistedScanSessionRow>(
       `select id, mode, access_tier, user_id, niche, location, radius, filters, query_string, source_summary,
               summary, issue_counts, pitch_context, leads_json, map_markers_json, usage, created_at, updated_at
        from scan_sessions
@@ -1179,7 +1319,25 @@ async function selectPersistedScanSession(sessionId: string, userId: string | nu
        limit 1`,
       [sessionId, userId]
     );
+    const row = result.rows[0];
+    return row ? { kind: "current" as const, row } : null;
+  } catch (error) {
+    if (!isLegacySessionShapeError(error)) {
+      throw error;
+    }
   }
+
+  const legacyResult = await db.query<LegacyPersistedScanSessionRow>(
+    `select id, mode, access_tier, user_id, niche, location, radius, filters, query_string, source_summary,
+            summary, issue_counts, pitch_context, usage, created_at, updated_at
+     from scan_sessions
+     where id = $1
+       and user_id is not distinct from $2
+     limit 1`,
+    [sessionId, userId]
+  );
+  const row = legacyResult.rows[0];
+  return row ? { kind: "legacy" as const, row } : null;
 }
 
 async function persistScanSessionToStore(session: ScanSession) {
@@ -1198,6 +1356,65 @@ async function persistScanSessionToStore(session: ScanSession) {
 function isMissingColumnError(error: unknown, columnName: string) {
   const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
   return message.includes(`column "${columnName.toLowerCase()}"`) || message.includes(`column ${columnName.toLowerCase()}`);
+}
+
+function isLegacySessionShapeError(error: unknown) {
+  return isMissingColumnError(error, "leads_json") || isMissingColumnError(error, "map_markers_json");
+}
+
+async function replaceLegacySessionLeadLinks(db: ReturnType<typeof getDb>, sessionId: string, leadIds: string[]) {
+  await db.query(`delete from scan_session_leads where scan_session_id = $1`, [sessionId]);
+
+  for (const leadId of leadIds) {
+    await db.query(
+      `insert into scan_session_leads (scan_session_id, lead_id)
+       values ($1, $2)
+       on conflict (scan_session_id, lead_id) do nothing`,
+      [sessionId, leadId]
+    );
+  }
+}
+
+async function selectLegacySessionLeads(sessionId: string) {
+  const db = getDb();
+  const result = await db.query<{
+    id: string;
+    business_name: string;
+    niche: string;
+    city: string | null;
+    region: string | null;
+    location: string;
+    country: string | null;
+    address: string | null;
+    phone: string | null;
+    website: string | null;
+    rating: number;
+    review_count: number;
+    lat: number | null;
+    lng: number | null;
+    place_source: string;
+    website_status: "has-website" | "no-website" | "unknown";
+    issue_tags: IssueType[];
+    opportunity_score: number;
+    opportunity_type: Lead["opportunityType"];
+    recommended_pitch_angle: string;
+    analysis_summary: string;
+    source_mode: ScanMode;
+    confidence: number;
+    signals: Lead["signals"];
+    last_scanned_at: string | null;
+    created_at: string;
+    updated_at: string;
+  }>(
+    `select l.*
+     from scan_session_leads ssl
+     join indexed_leads l on l.id = ssl.lead_id
+     where ssl.scan_session_id = $1
+     order by l.opportunity_score desc`,
+    [sessionId]
+  );
+
+  return result.rows.map((row) => mapIndexedRecordToLeadFallback(rowToIndexedLead(row)));
 }
 
 function mapIndexedRecordToLeadFallback(record: IndexedLeadRecord): Lead {

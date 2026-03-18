@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getViewerFresh } from "@/lib/auth";
 import { ScanConfigurationError, ScanExecutionError, ScanQueryError } from "@/lib/scanErrors";
-import { logAppEvent } from "@/services/indexedLeadRepository";
+import { ensureLegacyUserRecord, logAppEvent } from "@/services/indexedLeadRepository";
 import { runLeadScan } from "@/services/scanningService";
 
 export async function GET(request: NextRequest) {
@@ -20,6 +20,12 @@ export async function GET(request: NextRequest) {
   const mode = (searchParams.get("mode") as "auto" | "indexed" | "live" | "demo" | null) ?? "auto";
 
   try {
+    await ensureLegacyUserRecord({
+      userId: viewer.user.id,
+      email: viewer.user.email ?? null,
+      planTier: viewer.subscription.tier
+    });
+
     const result = await runLeadScan({
       location,
       niche,
