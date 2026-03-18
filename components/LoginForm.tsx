@@ -52,7 +52,7 @@ export function LoginForm({ nextPath = "/dashboard" }: { nextPath?: string }) {
     event.preventDefault();
 
     if (!hasSupabaseAuth) {
-      setError("Supabase auth is not configured. Add the public project URL and publishable key first.");
+      setError("Supabase auth is not configured. Add the public project URL and a Supabase publishable or anon key first.");
       return;
     }
 

@@ -5,7 +5,11 @@ export const env = {
   googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY?.trim() || "",
   nextPublicMapboxAccessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN?.trim() || "",
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "",
-  supabasePublishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || "",
+  supabasePublishableKey:
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ||
+    process.env.SUPABASE_ANON_KEY?.trim() ||
+    "",
   supabaseDatabaseUrl: process.env.SUPABASE_DATABASE_URL?.trim() || "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || "",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY?.trim() || "",
