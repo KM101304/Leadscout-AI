@@ -10,12 +10,14 @@ export function SearchForm({
   initialNiche = "",
   compact = false,
   tier = "free",
+  hasLiveApiAccess = tier !== "free",
   isAuthenticated = true
 }: {
   initialLocation?: string;
   initialNiche?: string;
   compact?: boolean;
   tier?: PlanTier;
+  hasLiveApiAccess?: boolean;
   isAuthenticated?: boolean;
 }) {
   const router = useRouter();
@@ -25,18 +27,17 @@ export function SearchForm({
   const [minimumReviewCount, setMinimumReviewCount] = useState("0");
   const [websiteStatus, setWebsiteStatus] = useState("any");
   const [businessSize, setBusinessSize] = useState("any");
-  const [mode, setMode] = useState<"auto" | "indexed" | "live">(tier === "free" ? "indexed" : "auto");
+  const [mode, setMode] = useState<"auto" | "indexed" | "live">(hasLiveApiAccess ? "auto" : "indexed");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const sourceOptions =
-    tier === "free"
-      ? [{ value: "indexed", label: "Indexed results" }]
-      : [
-          { value: "auto", label: "Auto: cache first" },
-          { value: "indexed", label: "Indexed only" },
-          { value: "live", label: "Live refresh" }
-        ];
+  const sourceOptions = hasLiveApiAccess
+    ? [
+        { value: "auto", label: "Auto: cache first" },
+        { value: "indexed", label: "Indexed only" },
+        { value: "live", label: "Live refresh" }
+      ]
+    : [{ value: "indexed", label: "Indexed results" }];
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,7 +60,7 @@ export function SearchForm({
       minimumReviewCount,
       websiteStatus,
       businessSize,
-      mode: tier === "free" ? "indexed" : mode
+      mode: hasLiveApiAccess ? mode : "indexed"
     });
 
     try {
@@ -101,7 +102,7 @@ export function SearchForm({
         </div>
         <div className="inline-flex max-w-full items-center gap-2 self-start rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-[12px] font-medium text-cyan-100">
           <Sparkles className="h-3.5 w-3.5" />
-          {tier === "free" ? "Indexed search only" : "Indexed cache + premium live scans"}
+          {hasLiveApiAccess ? "Indexed cache + live API scans" : "Indexed search only"}
         </div>
       </div>
 
@@ -184,11 +185,11 @@ export function SearchForm({
             <span className="field-label">Scan source</span>
             <div className="field-shell">
               <select
-                value={tier === "free" ? "indexed" : mode}
+                value={hasLiveApiAccess ? mode : "indexed"}
                 onChange={(event) => setMode(event.target.value as "auto" | "indexed" | "live")}
                 className="field-input field-input-select"
-                disabled={tier === "free"}
-                title={tier === "free" ? "Indexed results" : undefined}
+                disabled={!hasLiveApiAccess}
+                title={!hasLiveApiAccess ? "Indexed results" : undefined}
               >
                 {sourceOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -203,11 +204,11 @@ export function SearchForm({
         <div className="mt-6 grid gap-3.5 md:gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="surface-minimal rounded-[20px] px-4 py-3.5 text-[13px] leading-6 text-slate-300 md:px-4 md:py-4 md:text-[14px]">
             <div className="flex flex-wrap gap-3">
-              <span>{tier === "free" ? "Fast indexed lookup" : "Cache-first scan routing"}</span>
+              <span>{hasLiveApiAccess ? "Cache-first scan routing" : "Fast indexed lookup"}</span>
               <span className="text-slate-500">•</span>
               <span>Score consistently</span>
               <span className="text-slate-500">•</span>
-              <span>{tier === "free" ? "No automatic API cost" : "Only refresh live when needed"}</span>
+              <span>{hasLiveApiAccess ? "Only refresh live when needed" : "No automatic API cost"}</span>
             </div>
             {isLoading ? (
               <div className="progress-shine mt-4 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-sky-400" />
@@ -220,7 +221,7 @@ export function SearchForm({
             className="cta-primary glass-button inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 md:h-[52px] md:text-base lg:w-auto"
           >
             <Search className="h-4 w-4" />
-            {isLoading ? "Building scan session..." : isAuthenticated ? (tier === "free" ? "Search indexed leads" : "Run scan") : "Login to run a scan"}
+            {isLoading ? "Building scan session..." : isAuthenticated ? (hasLiveApiAccess ? "Run scan" : "Search indexed leads") : "Login to run a scan"}
           </button>
         </div>
       </div>

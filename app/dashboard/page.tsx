@@ -8,16 +8,21 @@ import { env } from "@/lib/env";
 
 export default async function DashboardPage() {
   const viewer = await getViewer();
+  const hasLiveApiAccess = viewer.subscription.tier !== "free" || (env.enableLiveScan && env.freeLiveScanMonthlyLimit > 0);
 
   return (
     <AppShell
       title="Search local markets and surface easy wins"
-      subtitle="Use indexed search by default, then unlock cache-first live scans when premium users need fresh coverage."
+      subtitle={
+        hasLiveApiAccess
+          ? "Use indexed search by default, then trigger live API refresh when you need fresh coverage for a demo or outreach pass."
+          : "Use indexed search by default, then unlock live scans when you need fresh coverage."
+      }
       activeNav="dashboard"
       showWorkspaceHeader={false}
     >
       <div className="app-page-stack">
-        <SearchForm tier={viewer.subscription.tier} />
+        <SearchForm tier={viewer.subscription.tier} hasLiveApiAccess={hasLiveApiAccess} />
 
         <section className="dashboard-mobile-priority-grid">
           <section className="surface-primary rounded-[28px] section-block">
@@ -42,7 +47,9 @@ export default async function DashboardPage() {
                 <p className="eyebrow">Workspace state</p>
                 <h2 className="card-title mt-2 text-white">No scan session loaded yet</h2>
               </div>
-              {viewer.subscription.tier === "free" ? (
+              {hasLiveApiAccess ? (
+                <Badge tone="success">Live API access enabled</Badge>
+              ) : viewer.subscription.tier === "free" ? (
                 <Badge tone="warning">Indexed only</Badge>
               ) : env.enableDemoMode ? (
                 <Badge tone="warning">Premium + demo available</Badge>
@@ -51,8 +58,9 @@ export default async function DashboardPage() {
               )}
             </div>
             <p className="mt-4 text-sm leading-6 text-slate-300">
-              Free searches stay inside the indexed dataset so they do not trigger paid APIs. Premium users can choose
-              indexed-only, cache-first auto mode, or an explicit live scan when freshness matters.
+              {hasLiveApiAccess
+                ? "This workspace can use indexed-only, cache-first auto mode, or an explicit live scan when freshness matters."
+                : "Free searches stay inside the indexed dataset so they do not trigger paid APIs. Premium users can choose indexed-only, cache-first auto mode, or an explicit live scan when freshness matters."}
             </p>
             <div className="mt-5">
               <Link

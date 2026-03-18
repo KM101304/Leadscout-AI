@@ -3,6 +3,7 @@ import { SearchForm } from "@/components/SearchForm";
 import { Badge, IssueBadge, SectionHeading, ScorePill } from "@/components/ui";
 import { Bot, Download, SearchCheck, ShieldAlert, TableProperties } from "lucide-react";
 import { getViewer } from "@/lib/auth";
+import { env } from "@/lib/env";
 
 const steps = [
   {
@@ -43,7 +44,7 @@ const featureCards = [
 ];
 
 const pricing = [
-  { name: "Free", price: "$0", value: "25 leads per month", badge: "For testing the workflow" },
+  { name: "Free", price: "$0", value: "25 leads per month with live API demos", badge: "For testing the workflow" },
   { name: "Starter", price: "$27", value: "Hybrid scans, exports, and limited live refresh", badge: "Best first paid tier" },
   { name: "Pro", price: "$49", value: "Semi-hybrid scans, exports, AI pitch generation", badge: "Best for solo operators" },
   { name: "Agency", price: "$149", value: "Team accounts, bulk exports, advanced scoring", badge: "Built for outbound teams" }
@@ -51,6 +52,7 @@ const pricing = [
 
 export default async function HomePage() {
   const viewer = await getViewer();
+  const hasLiveApiAccess = viewer.subscription.tier !== "free" || (env.enableLiveScan && env.freeLiveScanMonthlyLimit > 0);
   const primaryHref = viewer.user ? "/dashboard" : "/login";
   const primaryLabel = viewer.user ? "Open dashboard" : "Login to start scanning";
   const demoHref = viewer.user ? "/dashboard" : "/login";
@@ -108,6 +110,7 @@ export default async function HomePage() {
                 initialNiche="dentists"
                 compact
                 tier={viewer.subscription.tier}
+                hasLiveApiAccess={hasLiveApiAccess}
                 isAuthenticated={Boolean(viewer.user)}
               />
               <div className="mt-4 grid gap-3 md:grid-cols-3">

@@ -79,7 +79,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
               <p className="eyebrow">Empty market</p>
               <h2 className="section-title mt-3 text-white">{session.emptyStateTitle}</h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">{session.emptyStateMessage}</p>
-              {viewer.subscription.tier === "free" ? (
+              {session.sourceSummary.upgradeRequired ? (
                 <div className="mt-6">
                   <UpgradePrompt
                     tier="starter"

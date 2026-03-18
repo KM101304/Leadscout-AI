@@ -33,7 +33,11 @@ import { getLeadsLimitForTier } from "@/services/billingService";
 export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
   const query = normalizeScanQuery(input);
   const planTier = input.planTier ?? "free";
-  const accessTier = planTier === "starter" || planTier === "pro" || planTier === "agency" ? "premium" : "free";
+  const liveScanLimit = resolveLiveScanLimit(planTier);
+  const accessTier =
+    planTier === "starter" || planTier === "pro" || planTier === "agency" || (env.enableLiveScan && liveScanLimit > 0)
+      ? "premium"
+      : "free";
   const monthlyLeadLimit = getLeadsLimitForTier(planTier);
   const leadsUsedThisMonth = await countMonthlyLeadUsage(input.userId ?? null);
 
@@ -57,7 +61,6 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
   const savedLeadIds = await getSavedLeadIds(input.userId ?? null);
   const indexedResult = await queryIndexedLeads(query);
   const liveScansThisMonth = await countMonthlyUsage(input.userId ?? null, "live");
-  const liveScanLimit = resolveLiveScanLimit(input.planTier);
   const canUseDemo = query.mode === "demo";
   const hasFreshIndexedCoverage =
     indexedResult.coverageCount >= env.premiumMinimumIndexedCoverage &&
@@ -116,7 +119,7 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
         indexedLeads.length > 0
           ? "Results came from the indexed lead database only. No live API calls were made for this search."
           : accessTier === "free"
-            ? "No indexed results are available for this market yet. Upgrade to Starter for hybrid scans when you need fresh coverage."
+            ? "No indexed results are available for this market yet, and live API access is not enabled for this workspace."
             : "No indexed results are available yet, and a live refresh was not requested."
     });
     return finalizeSession({
@@ -195,8 +198,8 @@ export async function runLeadScan(input: SearchInput): Promise<ScanSession> {
     lastScannedAt: new Date().toISOString(),
     sourceDetail:
       indexedResult.coverageCount > 0
-        ? "A premium live refresh was run because the cached market was stale or thin. Fresh results were merged back into the indexed store."
-        : "A premium live scan fetched a new market and stored the analyzed results for future indexed reuse."
+        ? "A live API refresh was run because the cached market was stale or thin. Fresh results were merged back into the indexed store."
+        : "A live API scan fetched a new market and stored the analyzed results for future indexed reuse."
   });
   return finalizeSession({
     session,
@@ -481,7 +484,7 @@ function buildScanSession({
     queryString: query.queryString,
     query,
     sourceSummary: {
-      label: mode === "live" ? "Live premium scan" : mode === "demo" ? "Demo dataset preview" : "Indexed market results",
+      label: mode === "live" ? "Live API scan" : mode === "demo" ? "Demo dataset preview" : "Indexed market results",
       detail: sourceDetail,
       freshnessText: lastScannedAt ? `Last refreshed ${new Date(lastScannedAt).toLocaleDateString("en-US")}` : "No indexed freshness available",
       coverageState: sortedLeads.length === 0 ? "empty" : sortedLeads.length >= env.premiumMinimumIndexedCoverage ? "full" : "partial",
@@ -520,8 +523,8 @@ function buildScanSession({
     emptyStateMessage:
       sortedLeads.length === 0
         ? accessTier === "free"
-          ? "This search only checked the indexed database, so no external API costs were triggered. Upgrade to Starter to unlock hybrid scan refresh for fresh coverage."
-          : "Try a live premium scan to fetch and analyze fresh businesses for this market."
+          ? "This search only checked the indexed database, so no external API costs were triggered. Live scan access is currently unavailable for this workspace."
+          : "Try a live API scan to fetch and analyze fresh businesses for this market."
         : undefined,
     upgradeCtaLabel: accessTier === "free" ? "Upgrade to Starter" : undefined,
     usage: {

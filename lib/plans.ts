@@ -21,16 +21,16 @@ export const planDefinitions: PlanDefinition[] = [
     tier: "free",
     name: "Free",
     price: "$0",
-    summary: "Validate a market and sample the workflow.",
+    summary: "Validate a market, run live API demos, and sample the workflow.",
     bestFor: "Solo operators testing demand",
-    headline: "Great for trying searches, not for running outbound seriously.",
+    headline: "Great for demo content, fresh market checks, and trying the workflow before scaling up.",
     monthlyLeadLimit: "25 leads / month",
     cta: "Start free",
-    highlights: ["25 monthly leads", "Core scoring", "Basic lead table"],
-    unlocks: ["Manual review flow", "Single export path", "Limited outreach prep"],
-    indexedSearches: "Indexed database only",
-    liveScans: "Upgrade required",
-    liveScanMonthlyLimit: 0
+    highlights: ["25 monthly leads", "Live API scans", "Core scoring", "CSV exports"],
+    unlocks: ["Fresh market pulls", "AI-generated pitch drafts", "Manual review flow"],
+    indexedSearches: "Indexed database + live API access",
+    liveScans: "Included for demo workflows",
+    liveScanMonthlyLimit: 25
   },
   {
     tier: "starter",
@@ -89,28 +89,28 @@ export const featureMatrix = [
   },
   {
     name: "Search source",
-    free: "Indexed database",
+    free: "Indexed + live API access",
     starter: "Hybrid indexed + limited live",
     pro: "Semi-hybrid + deeper live refresh",
     agency: "Indexed + live refresh"
   },
   {
     name: "CSV exports",
-    free: "Basic",
+    free: "Included",
     starter: "Included",
     pro: "Included",
     agency: "Bulk + scheduled"
   },
   {
     name: "AI pitch assistant",
-    free: "Limited",
+    free: "Included",
     starter: "Included",
     pro: "Full pitch variants",
     agency: "Shared team playbooks"
   },
   {
     name: "Opportunity insights",
-    free: "Basic score",
+    free: "Included",
     starter: "Included",
     pro: "Strategic explanation",
     agency: "Advanced routing signals"
