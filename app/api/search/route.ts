@@ -59,7 +59,9 @@ export async function GET(request: NextRequest) {
     const message =
       error instanceof ScanQueryError || error instanceof ScanConfigurationError || error instanceof ScanExecutionError
         ? error.message
-        : "We couldn't create the scan session right now. Please try the search again in a moment.";
+        : error instanceof Error && error.message.trim()
+          ? error.message
+          : "We couldn't create the scan session right now. Please try the search again in a moment.";
 
     await logAppEvent({
       scope: "scan",

@@ -50,12 +50,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
               <Badge>{session.summary.scanned} scanned</Badge>
               <Badge tone="success">{session.summary.highPriority} high opportunity</Badge>
               <Badge tone="warning">{session.summary.averageScore} avg score</Badge>
-              <Badge tone={session.mode === "live" ? "success" : session.mode === "demo" ? "info" : "default"}>
-                {session.sourceSummary.label}
-              </Badge>
             </div>
-            <p className="mt-4 text-sm leading-6 text-slate-300">{session.sourceSummary.detail}</p>
-            <p className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-500">{session.sourceSummary.freshnessText}</p>
+            <p className="mt-4 text-sm leading-6 text-slate-300">
+              Review the ranked leads, pick the best opportunities, and move straight into outreach.
+            </p>
           </div>
           <div className="metric-card">
             <p className="metric-label">Most common issue</p>
@@ -131,9 +129,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
                   </p>
                 </div>
                 <div className="grid gap-2 py-4">
-                  <p className="card-title text-white">Cost guardrail</p>
+                  <p className="card-title text-white">Search radius</p>
                   <p className="text-[14px] leading-6 text-slate-300">
-                    Estimated live API cost for this session: ${session.sourceSummary.estimatedLiveCostUsd.toFixed(2)}
+                    {session.radius} miles around {session.location}
                   </p>
                 </div>
               </div>

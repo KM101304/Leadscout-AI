@@ -218,7 +218,6 @@ export function leadsToCsv(leads: Lead[]) {
     "issues",
     "opportunity_type",
     "pitch_suggestion",
-    "source_mode",
     "last_scanned_at"
   ];
 
@@ -231,7 +230,6 @@ export function leadsToCsv(leads: Lead[]) {
     lead.issueLabels.join("; "),
     lead.opportunityType,
     lead.pitch.emailPitch,
-    lead.sourceMode,
     lead.lastScannedAt
   ]);
 
@@ -484,9 +482,9 @@ function buildScanSession({
     queryString: query.queryString,
     query,
     sourceSummary: {
-      label: mode === "live" ? "Live API scan" : mode === "demo" ? "Demo dataset preview" : "Indexed market results",
-      detail: sourceDetail,
-      freshnessText: lastScannedAt ? `Last refreshed ${new Date(lastScannedAt).toLocaleDateString("en-US")}` : "No indexed freshness available",
+      label: "Lead scan results",
+      detail: sortedLeads.length > 0 ? "Lead scan completed successfully." : sourceDetail,
+      freshnessText: lastScannedAt ? `Updated ${new Date(lastScannedAt).toLocaleDateString("en-US")}` : "Ready for review",
       coverageState: sortedLeads.length === 0 ? "empty" : sortedLeads.length >= env.premiumMinimumIndexedCoverage ? "full" : "partial",
       cachedLeadCount: indexedLeadCount,
       refreshedLeadCount,
