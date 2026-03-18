@@ -21,6 +21,7 @@ export const env = {
   enableLiveScan: process.env.ENABLE_LIVE_SCAN?.trim() === "true",
   enableDemoMode: process.env.ENABLE_DEMO_MODE?.trim() === "true",
   defaultPlanTier: process.env.DEFAULT_PLAN_TIER?.trim() || "free",
+  devOverridePlanTier: process.env.DEV_OVERRIDE_PLAN_TIER?.trim() || "",
   indexedDataFile: process.env.INDEXED_DATA_FILE?.trim() || "data/indexed-leads.json",
   premiumFreshnessHours: Number(process.env.PREMIUM_FRESHNESS_HOURS?.trim() || "168"),
   indexedFreshnessHours: Number(process.env.INDEXED_FRESHNESS_HOURS?.trim() || "720"),

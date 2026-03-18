@@ -44,7 +44,8 @@ async function readViewer(): Promise<ViewerContext> {
     const fallbackTier = normalizePlanTier(user.user_metadata?.plan_tier ?? user.app_metadata?.plan_tier ?? env.defaultPlanTier);
     const billingSubscription = await getBillingSubscriptionSafely(user.id);
     const leadsUsedThisMonth = await countMonthlyLeadUsageSafely(user.id);
-    const tier = billingSubscription ? getEffectivePlanTier(billingSubscription, fallbackTier) : fallbackTier;
+    const devOverrideTier = getDevelopmentOverrideTier();
+    const tier = devOverrideTier ?? (billingSubscription ? getEffectivePlanTier(billingSubscription, fallbackTier) : fallbackTier);
     const plan =
       planDefinitions.find((entry) => entry.tier === tier) ??
       planDefinitions.find((entry) => entry.tier === fallbackTier) ??
@@ -55,7 +56,7 @@ async function readViewer(): Promise<ViewerContext> {
       subscription: {
         tier,
         leadsUsedThisMonth: Number.isFinite(leadsUsedThisMonth) ? leadsUsedThisMonth : 0,
-        leadsLimit: billingSubscription ? getLeadsLimitForTier(tier) : parseLeadLimit(plan.monthlyLeadLimit)
+        leadsLimit: devOverrideTier || billingSubscription ? getLeadsLimitForTier(tier) : parseLeadLimit(plan.monthlyLeadLimit)
       }
     };
   } catch {
@@ -86,6 +87,15 @@ function normalizePlanTier(value: unknown): PlanTier {
 function parseLeadLimit(value: string) {
   const match = value.match(/\d+/);
   return match ? Number(match[0]) : 999999;
+}
+
+function getDevelopmentOverrideTier(): PlanTier | null {
+  if (process.env.NODE_ENV === "production") {
+    return null;
+  }
+
+  const tier = normalizePlanTier(env.devOverridePlanTier);
+  return tier === "free" ? null : tier;
 }
 
 async function getBillingSubscriptionSafely(userId: string) {
