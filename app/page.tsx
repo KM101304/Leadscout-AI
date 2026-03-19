@@ -45,7 +45,7 @@ const featureCards = [
 
 const pricing = [
   { name: "Free", price: "$0", value: "25 leads per month with live API demos", badge: "For testing the workflow" },
-  { name: "Starter", price: "$27", value: "Hybrid scans, exports, and limited live refresh", badge: "Best first paid tier" },
+  { name: "Starter", price: "$29", value: "Hybrid scans, exports, and limited live refresh", badge: "Best first paid tier" },
   { name: "Pro", price: "$49", value: "Semi-hybrid scans, exports, AI pitch generation", badge: "Best for solo operators" },
   { name: "Agency", price: "$149", value: "Team accounts, bulk exports, advanced scoring", badge: "Built for outbound teams" }
 ];

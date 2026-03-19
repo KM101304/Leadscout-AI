@@ -15,7 +15,9 @@ export function PricingExperience({ currentTier }: { currentTier: PlanTier }) {
           return (
             <article
               key={plan.tier}
-              className={`surface-primary rounded-[2rem] p-6 md:p-7 ${isFeatured ? "ring-1 ring-cyan-400/30" : ""}`}
+              className={`surface-primary rounded-[2rem] p-6 md:p-7 ${
+                isFeatured ? "ring-1 ring-cyan-400/30" : ""
+              } ${plan.tier === "agency" ? "xl:col-start-2" : ""}`}
             >
               <div className="flex items-center justify-between gap-3">
                 <Badge tone={isCurrent ? "success" : isFeatured ? "warning" : "default"}>

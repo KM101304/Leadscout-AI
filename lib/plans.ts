@@ -35,7 +35,7 @@ export const planDefinitions: PlanDefinition[] = [
   {
     tier: "starter",
     name: "Starter",
-    price: "$27",
+    price: "$29",
     summary: "Use the hybrid engine without jumping straight into a full pro workflow.",
     bestFor: "Operators who need real scans without a large monthly commitment",
     headline: "The paid entry point for practical hybrid prospecting.",

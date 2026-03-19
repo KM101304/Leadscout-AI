@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56">
+  <defs>
+    <linearGradient id="leadscout-brand-gradient" x1="10" y1="9" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#79D2FF" />
+      <stop offset="0.62" stop-color="#4CB7FF" />
+      <stop offset="1" stop-color="#F5BF62" />
+    </linearGradient>
+  </defs>
+  <rect x="4.5" y="4.5" width="47" height="47" rx="15.5" fill="#08101C" stroke="rgba(121,210,255,0.2)" />
+  <path
+    d="M17 34V23C17 19.686 19.686 17 23 17H35"
+    fill="none"
+    stroke="url(#leadscout-brand-gradient)"
+    stroke-linecap="round"
+    stroke-width="4"
+  />
+  <path
+    d="M21.5 39H31.5C36.747 39 41 34.747 41 29.5V21"
+    fill="none"
+    stroke="rgba(236,243,255,0.92)"
+    stroke-linecap="round"
+    stroke-width="4"
+  />
+  <path
+    d="M30 27.5L36.5 21"
+    fill="none"
+    stroke="rgba(236,243,255,0.92)"
+    stroke-linecap="round"
+    stroke-width="3.25"
+  />
+  <circle cx="38" cy="19.5" r="4.25" fill="#F5BF62" />
+</svg>
