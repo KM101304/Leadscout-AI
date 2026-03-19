@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, MapPinned, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Building2, MapPinned, Search, SlidersHorizontal } from "lucide-react";
 import { PlanTier } from "@/lib/plans";
 
 export function SearchForm({
@@ -100,10 +100,11 @@ export function SearchForm({
             Choose the market, tighten the filters, and send the workspace straight into a scored results view.
           </p>
         </div>
-        <div className="inline-flex max-w-full items-center gap-2 self-start rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-[12px] font-medium text-cyan-100">
-          <Sparkles className="h-3.5 w-3.5" />
-          {hasLiveApiAccess ? "Indexed cache + live API scans" : "Indexed search only"}
-        </div>
+        {!compact ? (
+          <div className="inline-flex max-w-full items-center gap-2 self-start rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1.5 text-[12px] font-medium text-cyan-100">
+            {hasLiveApiAccess ? "Indexed cache + live API scans" : "Indexed search only"}
+          </div>
+        ) : null}
       </div>
 
       <div className={compact ? "grid gap-6" : "workspace-frame__body"}>
